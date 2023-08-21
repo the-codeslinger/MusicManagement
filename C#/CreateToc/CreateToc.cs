@@ -10,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 
 namespace CreateToc
 {
@@ -27,14 +25,22 @@ namespace CreateToc
 
         static int Main(string[] args)
         {
-            return Parser.Default.ParseArguments<Options>(args).MapResult(Run, _ => 1);
+            var parserResult = Parser.Default.ParseArguments<Options>(args);
+            var convertMusic = new CreateToc(parserResult.Value);
+            return convertMusic.Run();
         }
 
-        static int Run(Options options)
-        {
-            var config = new Configuration(options.Config);
 
-            var fileFinder = new MusicMgmtFileFinder(config.InputConfig, config.FilenameEncodingConfig);
+        private readonly Configuration _config;
+
+        public CreateToc(Options options)
+        {
+            _config = new Configuration(options.Config);
+        }
+
+        public int Run()
+        {
+            var fileFinder = new MusicMgmtFileFinder(_config.InputConfig, _config.FilenameEncodingConfig);
             fileFinder.EnterDirectory += EnterDirectory;
             fileFinder.LeaveDirectory += LeaveDirectory;
             fileFinder.FoundAudioFile += FoundAudioFile;
@@ -43,29 +49,21 @@ namespace CreateToc
             return 0;
         }
 
-        static void EnterDirectory(object _, DirectoryEvent e)
+        private string ReplaceCodeStrings(string value)
         {
-            if (!File.Exists(Path.Combine(e.DirectoryPath, StandardFilename.TableOfContents)))
-            {
-                records.Add(e.DirectoryPath, new TableOfContentsV2());
-            } 
-            else
-            {
-                Console.WriteLine($"'{e.DirectoryPath}' already contains a table of contents file.");
-            }
+            var codes = _config.FilenameEncodingConfig.CharacterReplacements;
+            codes.ForEach(c => value = value.Replace(c.Replacement, c.Character));
+            return value;
         }
 
-        static void LeaveDirectory(object _, DirectoryEvent e)
+        private string RemoveCodeStrings(string value)
         {
-            if (records.ContainsKey(e.DirectoryPath))
-            {
-                var toc = records.First(item => item.Key == e.DirectoryPath);
-                FinalizeRecord(e.DirectoryPath, toc.Value);
-                records.Remove(e.DirectoryPath);
-            }
+            var codes = _config.FilenameEncodingConfig.CharacterReplacements;
+            codes.ForEach(c => value = value.Replace(c.Replacement, " "));
+            return value.Replace(".", "");
         }
 
-        static void FoundAudioFile(object _, AudioFileEvent e)
+        private void FoundAudioFile(object _, AudioFileEvent e)
         {
             if (records.ContainsKey(e.AudioFile.Directory))
             {
@@ -74,32 +72,16 @@ namespace CreateToc
             }
         }
 
-        static void FinalizeRecord(string directory, TableOfContentsV2 toc)
-        {
-            if (toc.TrackList.Count == 0)
-            {
-                return;
-            }
-
-            var distinctArtists = toc.TrackList.DistinctBy(track => track.Artist);
-            var isCompilation = distinctArtists.Count() > 1;
-            toc.TrackList.ForEach(track  => track.IsCompilation = isCompilation);
-            toc.TrackList.Sort((t1, t2) => t1.TrackNumber.CompareTo(t2.TrackNumber));
-
-            JsonWriter.WriteToDirectory(directory, toc);
-            toc.TrackList.ForEach(track => RenameFile(directory, track));
-        }
-
-        static TrackV2 TrackFromAudioFile(AudioFile audioFile)
+        private TrackV2 TrackFromAudioFile(AudioFile audioFile)
         {
             var track = new TrackV2
             {
-                Artist = audioFile.MetaData.Artist,
-                Album = audioFile.MetaData.Album,
+                Artist = ReplaceCodeStrings(audioFile.MetaData.Artist),
+                Album = ReplaceCodeStrings(audioFile.MetaData.Album),
                 Genre = audioFile.MetaData.Genre,
                 Year = audioFile.MetaData.Year,
                 TrackNumber = audioFile.MetaData.TrackNumber,
-                TrackTitle = audioFile.MetaData.TrackTitle
+                TrackTitle = ReplaceCodeStrings(audioFile.MetaData.TrackTitle)
             };
 
             var filename = new AudioFilename
@@ -113,14 +95,52 @@ namespace CreateToc
             return track;
         }
 
-        static string ShortFilename(AudioFile audioFile)
+        private string ShortFilename(AudioFile audioFile)
         {
             var fileInfo = new FileInfo(audioFile.Filename);
             var metaData = audioFile.MetaData;
-            return $"{metaData.TrackNumber} - {metaData.TrackTitle}{fileInfo.Extension}";
+            return $"{metaData.TrackNumber} - {RemoveCodeStrings(metaData.TrackTitle)}{fileInfo.Extension}";
         }
 
-        static void RenameFile(string directory, TrackV2 track)
+        private static void EnterDirectory(object _, DirectoryEvent e)
+        {
+            if (!File.Exists(Path.Combine(e.DirectoryPath, StandardFilename.TableOfContents)))
+            {
+                records.Add(e.DirectoryPath, new TableOfContentsV2());
+            }
+            else
+            {
+                Console.WriteLine($"'{e.DirectoryPath}' already contains a table of contents file.");
+            }
+        }
+
+        private static void LeaveDirectory(object _, DirectoryEvent e)
+        {
+            if (records.ContainsKey(e.DirectoryPath))
+            {
+                var toc = records.First(item => item.Key == e.DirectoryPath);
+                FinalizeRecord(e.DirectoryPath, toc.Value);
+                records.Remove(e.DirectoryPath);
+            }
+        }
+
+        private static void FinalizeRecord(string directory, TableOfContentsV2 toc)
+        {
+            if (toc.TrackList.Count == 0)
+            {
+                return;
+            }
+
+            var distinctArtists = toc.TrackList.DistinctBy(track => track.Artist);
+            var isCompilation = distinctArtists.Count() > 1;
+            toc.TrackList.ForEach(track => track.IsCompilation = isCompilation);
+            toc.TrackList.Sort((t1, t2) => t1.TrackNumber.CompareTo(t2.TrackNumber));
+
+            JsonWriter.WriteToDirectory(directory, toc);
+            toc.TrackList.ForEach(track => RenameFile(directory, track));
+        }
+
+        private static void RenameFile(string directory, TrackV2 track)
         {
             File.Move(
                 Path.Combine(directory, track.Filename.LongName),

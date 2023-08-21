@@ -75,12 +75,12 @@ namespace ConvertMusic
         private string MakeDestinationFilename(TrackV2 track)
         {
             var formatted = _config.OutputConfig.Format
-                .Replace(MetaTagName.Artist, track.IsCompilation ? CompilationArtistName : track.Artist)
-                .Replace(MetaTagName.Album, track.Album)
+                .Replace(MetaTagName.Artist, RemoveCodeStrings(track.IsCompilation ? CompilationArtistName : track.Artist))
+                .Replace(MetaTagName.Album, RemoveCodeStrings(track.Album))
                 .Replace(MetaTagName.Genre, track.Genre)
                 .Replace(MetaTagName.Year, track.Year)
                 .Replace(MetaTagName.TrackNumber, track.TrackNumber)
-                .Replace(MetaTagName.Title, track.TrackTitle);
+                .Replace(MetaTagName.Title, RemoveCodeStrings(track.TrackTitle));
             return Path.Combine(_converter.Output.Path, formatted + "." + _converter.Type.ToLower());
         }
 
@@ -121,6 +121,13 @@ namespace ConvertMusic
             });
             var process = Process.Start(_converter.Command.Bin, args);
             process.WaitForExit();
+        }
+
+        private string RemoveCodeStrings(string value)
+        {
+            var codes = _config.FilenameEncodingConfig.CharacterReplacements;
+            codes.ForEach(c => value = value.Replace(c.Character, " "));
+            return value.Replace(".", "");
         }
 
         private static void WriteAudioTags(string audioFile, string coverArt, TrackV2 track)
