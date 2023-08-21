@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ConvertMusic": {
+      "commandName": "Project",
+      "commandLineArgs": "--config C:\\Users\\lober\\OneDrive\\Code\\C#\\MusicManagement\\CreateToc\\Config.json --format MP3"
+    }
+  }
+}
