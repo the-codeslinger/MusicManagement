@@ -58,6 +58,6 @@ namespace MusicManagementCore.Json
         /// The list of audio files that have been ripped for the "album".
         /// </summary>
         [JsonPropertyName("tracks")]
-        public IList<TrackV1> TrackList { get; set; } = new List<TrackV1>();
+        public List<TrackV1> TrackList { get; set; } = new List<TrackV1>();
     }
 }

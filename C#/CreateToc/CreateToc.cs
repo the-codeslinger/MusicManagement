@@ -5,6 +5,7 @@ using MusicManagementCore.Constant;
 using MusicManagementCore.Event;
 using MusicManagementCore.Json;
 using MusicManagementCore.Model;
+using MusicManagementCore.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +20,7 @@ namespace CreateToc
         public class Options
         {
             [Option('c', "config", HelpText = "Path to the configuration containing <Input> and <FilenameEncoding>.")]
-            public string Config { get; set; }
+            public required string Config { get; set; }
         }
 
         static Dictionary<string, TableOfContentsV2> records = new Dictionary<string, TableOfContentsV2>();
@@ -85,7 +86,7 @@ namespace CreateToc
             toc.TrackList.ForEach(track  => track.IsCompilation = isCompilation);
             toc.TrackList.Sort((t1, t2) => t1.TrackNumber.CompareTo(t2.TrackNumber));
 
-            WriteJson(directory, toc);
+            JsonWriter.WriteToDirectory(directory, toc);
             toc.TrackList.ForEach(track => RenameFile(directory, track));
         }
 
@@ -117,18 +118,6 @@ namespace CreateToc
             var fileInfo = new FileInfo(audioFile.Filename);
             var metaData = audioFile.MetaData;
             return $"{metaData.TrackNumber} - {metaData.TrackTitle}{fileInfo.Extension}";
-        }
-
-        static void WriteJson(string directory, TableOfContentsV2 toc)
-        {
-            var options = new JsonSerializerOptions
-            {
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                WriteIndented = true
-            };
-            var jsonString = JsonSerializer.Serialize(toc, options);
-            File.WriteAllText(Path.Combine(directory, StandardFilename.TableOfContents),
-                jsonString);
         }
 
         static void RenameFile(string directory, TrackV2 track)

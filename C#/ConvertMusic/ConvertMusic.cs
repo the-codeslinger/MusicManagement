@@ -4,6 +4,7 @@ using MusicManagementCore.Config;
 using MusicManagementCore.Constant;
 using MusicManagementCore.Event;
 using MusicManagementCore.Json;
+using MusicManagementCore.Util;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -14,10 +15,10 @@ namespace ConvertMusic
         public class Options
         {
             [Option('c', "config", HelpText = "Path to the configuration containing <Input> and <FilenameEncoding>.")]
-            public string Config { get; set; }
+            public required string Config { get; set; }
 
             [Option('f', "format", HelpText = "The converter to use. This identifies the converter in the 'Output' section of the configuration file.")]
-            public string Format { get; set; }
+            public required string Format { get; set; }
         }
 
         static int Main(string[] args)
@@ -30,9 +31,9 @@ namespace ConvertMusic
 
         private const string CompilationArtistName = "Compilation";
 
-        private Options _options;
-        private Configuration _config;
-        private Converter _converter;
+        private readonly Options _options;
+        private readonly Configuration _config;
+        private readonly Converter _converter;
 
         public ConvertMusic(Options options)
         {
@@ -65,7 +66,7 @@ namespace ConvertMusic
                 ConvertV1ToV2(e.TableOfContentsFile);
             }
 
-            var toc = ReadTableOfContents(e.TableOfContentsFile);
+            var toc = ReadTableOfContents<TableOfContentsV2>(e.TableOfContentsFile);
             var directory = Path.GetDirectoryName(e.TableOfContentsFile);
 
             toc.TrackList.ForEach(track => HandleTrack(directory!, track));
@@ -83,15 +84,6 @@ namespace ConvertMusic
             return Path.Combine(_converter.Output.Path, formatted + "." + _converter.Type.ToLower());
         }
 
-        private void MakeDestinationFolder(string filename)
-        {
-            var directory = Path.GetDirectoryName(filename);
-            if (null != directory && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-        }
-
         private void HandleTrack(string directory, TrackV2 track)
         {
             var source = Path.Combine(directory, track.Filename.ShortName);
@@ -101,10 +93,10 @@ namespace ConvertMusic
             }
 
             var destination = MakeDestinationFilename(track);
-            MakeDestinationFolder(destination);
-
             if (!File.Exists(destination))
             {
+                MakeDestinationFolder(destination);
+
                 Compress(source, destination);
                 WriteAudioTags(destination, Path.Combine(directory, StandardFilename.AlbumCover), track);
             }
@@ -131,12 +123,28 @@ namespace ConvertMusic
             process.WaitForExit();
         }
 
-        private void WriteAudioTags(string destinationFile, string coverArt, TrackV2 track)
+        private static void WriteAudioTags(string audioFile, string coverArt, TrackV2 track)
         {
+            var file = TagLib.File.Create(audioFile);
 
+            file.Tag.Album = track.Album;
+            file.Tag.Title = track.TrackTitle;
+            file.Tag.Track = Convert.ToUInt32(track.TrackNumber);
+            file.Tag.Year = Convert.ToUInt32(track.Year);
+            file.Tag.Genres = new string[] { track.Genre };
+            file.Tag.Performers = new string[] { track.Artist };
+            file.Tag.AlbumArtists = new string[] { track.IsCompilation ? CompilationArtistName : track.Artist };
+
+            file.Tag.Pictures = new TagLib.IPicture[] { new TagLib.Picture(coverArt) {
+                    Type = TagLib.PictureType.FrontCover,
+                    MimeType = System.Net.Mime.MediaTypeNames.Image.Jpeg
+                }
+            };
+
+            file.Save();
         }
 
-        private string ReadToCVersion(string filename)
+        private static string ReadToCVersion(string filename)
         {
             using var stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             using var json = JsonDocument.Parse(stream);
@@ -146,24 +154,58 @@ namespace ConvertMusic
                 var versionElement = json.RootElement.GetProperty("version");
                 return versionElement.GetString() ?? ToCVersion.V1;
             }
-            catch (KeyNotFoundException _)
+            catch (KeyNotFoundException)
             {
                 // If "version" does not exist, we have a V1 at our hands.
                 return ToCVersion.V1;
             }
         }
 
-        private void ConvertV1ToV2(string filename)
+        private static void ConvertV1ToV2(string filename)
         {
+            var tocV1 = ReadTableOfContents<TableOfContentsV1>(filename);
+            var tocV2 = new TableOfContentsV2();
 
+            tocV1.TrackList.ForEach(trackV1 =>
+            {
+                var trackV2 = new TrackV2
+                {
+                    Artist = tocV1.Artist,
+                    Album = tocV1.Album,
+                    Genre = tocV1.Genre,
+                    Year = tocV1.Year,
+
+                    TrackNumber = trackV1.Number,
+                    TrackTitle = trackV1.Title,
+
+                    Filename = trackV1.Filename
+                };
+                tocV2.TrackList.Add(trackV2);
+            });
+
+            JsonWriter.WriteToFilename(filename, tocV2);
         }
 
-        private static TableOfContentsV2 ReadTableOfContents(string filename)
+        private static void MakeDestinationFolder(string filename)
+        {
+            var directory = Path.GetDirectoryName(filename);
+            if (null != directory && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+        }
+
+        private static T ReadTableOfContents<T>(string filename)
         {
             using var stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             using var json = JsonDocument.Parse(stream);
 
-            return json.RootElement.Deserialize<TableOfContentsV2>();
+            var toc = json.RootElement.Deserialize<T>();
+            if (null == toc)
+            {
+                throw new InvalidDataException($"File '{filename}' is not a valid table of contents.");
+            }
+            return toc;
         }
     }
 }
