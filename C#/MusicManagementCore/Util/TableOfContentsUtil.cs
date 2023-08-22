@@ -40,8 +40,9 @@ namespace MusicManagementCore.Util
 
         public static TableOfContentsV2 MigrateV1ToV2File(string filename)
         {
-            var tocV1 = TableOfContentsUtil.ReadFromFile<TableOfContentsV1>(filename);
+            var tocV1 = ReadFromFile<TableOfContentsV1>(filename);
             var tocV2 = ConvertToV2(tocV1);
+            File.Copy(filename, filename + "_v1bak");
             JsonWriter.WriteToFilename(filename, tocV2);
             return tocV2;
         }
@@ -65,6 +66,7 @@ namespace MusicManagementCore.Util
                 };
                 tocV2.TrackList.Add(trackV2);
             });
+            tocV2.TrackList.Sort((t1, t2) => t1.TrackNumber.CompareTo(t2.TrackNumber));
 
             return tocV2;
         }
