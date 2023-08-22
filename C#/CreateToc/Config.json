@@ -1,6 +1,6 @@
 ﻿{
     "Input": {
-        "Path": "E:\\Music\\Compilation",
+        "Path": "B:\\Music\\Purchased\\Disc\\Compilations",
         "Recurse": true,
         "Extension": "wav",
         "Type": "Compilation"
