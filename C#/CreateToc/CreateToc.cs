@@ -1,5 +1,4 @@
-﻿using CommandLine;
-using MusicManagementCore;
+﻿using MusicManagementCore;
 using MusicManagementCore.Config;
 using MusicManagementCore.Constant;
 using MusicManagementCore.Event;
@@ -15,22 +14,7 @@ namespace CreateToc
 {
     class CreateToc
     {
-        public class Options
-        {
-            [Option('c', "config", HelpText = "Path to the configuration containing <Input> and <FilenameEncoding>.")]
-            public required string Config { get; set; }
-        }
-
-        static Dictionary<string, TableOfContentsV2> records = new Dictionary<string, TableOfContentsV2>();
-
-        static int Main(string[] args)
-        {
-            var parserResult = Parser.Default.ParseArguments<Options>(args);
-            var convertMusic = new CreateToc(parserResult.Value);
-            return convertMusic.Run();
-        }
-
-
+        private readonly Dictionary<string, TableOfContentsV2> _records = new Dictionary<string, TableOfContentsV2>();
         private readonly Configuration _config;
 
         public CreateToc(Options options)
@@ -65,9 +49,9 @@ namespace CreateToc
 
         private void FoundAudioFile(object _, AudioFileEvent e)
         {
-            if (records.ContainsKey(e.AudioFile.Directory))
+            if (_records.ContainsKey(e.AudioFile.Directory))
             {
-                var toc = records.First(item => item.Key == e.AudioFile.Directory);
+                var toc = _records.First(item => item.Key == e.AudioFile.Directory);
                 toc.Value.TrackList.Add(TrackFromAudioFile(e.AudioFile));
             }
         }
@@ -102,25 +86,35 @@ namespace CreateToc
             return $"{metaData.TrackNumber} - {RemoveCodeStrings(metaData.TrackTitle)}{fileInfo.Extension}";
         }
 
-        private static void EnterDirectory(object _, DirectoryEvent e)
+        private void EnterDirectory(object _, DirectoryEvent e)
         {
-            if (!File.Exists(Path.Combine(e.DirectoryPath, StandardFilename.TableOfContents)))
+            var tocFilename = Path.Combine(e.DirectoryPath, StandardFilename.TableOfContents);
+            if (!File.Exists(tocFilename))
             {
-                records.Add(e.DirectoryPath, new TableOfContentsV2());
+                _records.Add(e.DirectoryPath, new TableOfContentsV2());
             }
             else
             {
-                Console.WriteLine($"'{e.DirectoryPath}' already contains a table of contents file.");
+                var version = TableOfContentsUtil.ReadVersion(tocFilename);
+                if (ToCVersion.V1 == version)
+                {
+                    Console.WriteLine($"'{e.DirectoryPath}' contains a V1 table of contents file. Migrating to V2.");
+                    TableOfContentsUtil.MigrateV1ToV2File(tocFilename);
+                }
+                else
+                {
+                    Console.WriteLine($"'{e.DirectoryPath}' already contains a table of contents file.");
+                }
             }
         }
 
-        private static void LeaveDirectory(object _, DirectoryEvent e)
+        private void LeaveDirectory(object _, DirectoryEvent e)
         {
-            if (records.ContainsKey(e.DirectoryPath))
+            if (_records.ContainsKey(e.DirectoryPath))
             {
-                var toc = records.First(item => item.Key == e.DirectoryPath);
+                var toc = _records.First(item => item.Key == e.DirectoryPath);
                 FinalizeRecord(e.DirectoryPath, toc.Value);
-                records.Remove(e.DirectoryPath);
+                _records.Remove(e.DirectoryPath);
             }
         }
 
