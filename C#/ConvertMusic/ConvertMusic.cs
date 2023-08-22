@@ -61,7 +61,7 @@ namespace ConvertMusic
             var formatted = _config.OutputConfig.Format
                 .Replace(MetaTagName.Artist, RemoveCodeStrings(track.IsCompilation ? CompilationArtistName : track.Artist))
                 .Replace(MetaTagName.Album, RemoveCodeStrings(track.Album))
-                .Replace(MetaTagName.Genre, track.Genre)
+                .Replace(MetaTagName.Genre, RemoveCodeStrings(track.Genre))
                 .Replace(MetaTagName.Year, track.Year)
                 .Replace(MetaTagName.TrackNumber, track.TrackNumber)
                 .Replace(MetaTagName.Title, RemoveCodeStrings(track.TrackTitle));
