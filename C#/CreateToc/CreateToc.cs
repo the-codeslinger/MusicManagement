@@ -62,7 +62,7 @@ namespace CreateToc
             {
                 Artist = ReplaceCodeStrings(audioFile.MetaData.Artist),
                 Album = ReplaceCodeStrings(audioFile.MetaData.Album),
-                Genre = audioFile.MetaData.Genre,
+                Genre = ReplaceCodeStrings(audioFile.MetaData.Genre),
                 Year = audioFile.MetaData.Year,
                 TrackNumber = audioFile.MetaData.TrackNumber,
                 TrackTitle = ReplaceCodeStrings(audioFile.MetaData.TrackTitle)
@@ -75,6 +75,7 @@ namespace CreateToc
             };
 
             track.Filename = filename;
+            track.MetaHash = TableOfContentsUtil.HashTags(track);
 
             return track;
         }

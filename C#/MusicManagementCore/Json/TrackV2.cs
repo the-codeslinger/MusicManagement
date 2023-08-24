@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace MusicManagementCore.Json
 {
@@ -63,6 +64,13 @@ namespace MusicManagementCore.Json
         /// </summary>
         [JsonPropertyName("filename")]
         public AudioFilename Filename { get; set; }
+
+        /// <summary>
+        /// A hash of the audio file's meta information. Used for determining changes to 
+        /// support selective update of a single file's tags.
+        /// </summary>
+        [JsonPropertyName("hash")]
+        public string MetaHash { get; set; }
 
         public override string ToString()
         {

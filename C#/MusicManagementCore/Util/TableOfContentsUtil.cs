@@ -1,7 +1,10 @@
 ﻿using MusicManagementCore.Constant;
 using MusicManagementCore.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace MusicManagementCore.Util
@@ -64,11 +67,23 @@ namespace MusicManagementCore.Util
 
                     Filename = trackV1.Filename
                 };
+                trackV2.MetaHash = HashTags(trackV2);
                 tocV2.TrackList.Add(trackV2);
             });
             tocV2.TrackList.Sort((t1, t2) => t1.TrackNumber.CompareTo(t2.TrackNumber));
 
             return tocV2;
+        }
+
+        public static string HashTags(TrackV2 track)
+        {
+            var hashSource = track.Artist + track.Album + track.Genre + track.Year
+                + track.TrackNumber + track.TrackTitle;
+
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(hashSource));
+
+            return Convert.ToHexString(bytes);
         }
     }
 }
