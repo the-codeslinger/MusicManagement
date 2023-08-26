@@ -67,8 +67,7 @@ namespace MusicManagementCore
         /// </remarks>
         public void Scan()
         {
-            if (!Directory.Exists(_inputConfig.Path))
-            {
+            if (!Directory.Exists(_inputConfig.Path)) {
                 throw new DirectoryNotFoundException($"Source directory {_inputConfig.Path} not found.");
             }
 
@@ -80,25 +79,21 @@ namespace MusicManagementCore
         {
             EnterDirectory?.Invoke(this, new DirectoryEvent(root.FullName));
 
-            foreach (var fileInfo in root.GetFiles("*.*"))
-            {
-                if (MatchesAudioFile(fileInfo))
-                {
+            foreach (var fileInfo in root.GetFiles("*.*")) {
+                if (MatchesAudioFile(fileInfo)) {
                     var metaData = _parser.ParseMetaData(fileInfo.FullName);
                     var audioFile = new AudioFile(fileInfo.FullName, metaData);
 
                     FoundAudioFile?.Invoke(this, new AudioFileEvent(audioFile));
                 }
-                else if (MatchesTableOfContentsFile(fileInfo))
-                {
+                else if (MatchesTableOfContentsFile(fileInfo)) {
                     FoundTableOfContentsFile?.Invoke(this, new TableOfContentsFileEvent(fileInfo.FullName));
                 }
             }
 
             LeaveDirectory?.Invoke(this, new DirectoryEvent(root.FullName));
 
-            if (_inputConfig.Recurse)
-            {
+            if (_inputConfig.Recurse) {
                 var tasks = root.GetDirectories().Select(WalkRecursive);
                 await Task.WhenAll(tasks);
             }

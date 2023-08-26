@@ -12,7 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicManagementCore.Tests",
 		{858A9CF7-E670-4725-A19F-23413362015B} = {858A9CF7-E670-4725-A19F-23413362015B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertMusic", "ConvertMusic\ConvertMusic.csproj", "{A1A8B65C-2276-40EE-8460-93278A7BE42A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConvertMusic", "ConvertMusic\ConvertMusic.csproj", "{A1A8B65C-2276-40EE-8460-93278A7BE42A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

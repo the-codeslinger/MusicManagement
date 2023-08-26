@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using MusicManagementCore.Constant;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 
 namespace MusicManagementCore.Json
@@ -12,13 +16,16 @@ namespace MusicManagementCore.Json
     /// <code>
     /// {
     ///   "version": "2",
-    ///   "title": "Winter's Gate",
-    ///   "year": "2016",
+    ///   "CoverHash": "5455DA9A92AEA56AE5F65C9EF587412C356A18A25A9C1A95ED58A091BBBF9513",
     ///   "tracks": {
+    ///     "IsCompilation": false,
     ///     "artist": "Insomnium",
+    ///     "album": "Winter's Gate",
     ///     "genre": "Melodic Death Metal",
+    ///     "year": "2016",
     ///     "track": "01",
     ///     "title": "Winter's Gate",
+    ///     "MetaHash": "5455DA9A92AEA56AE5F65C9EF587412C356A18A25A9C1A95ED58A091BBBF9513",
     ///     "filename": {
     ///       "long": "Insomnium#Winter's Gate#Melodic Death Metal#2016#01#Winter's Gate.wav",
     ///       "short": "01 - Winter's Gate.wav"
@@ -33,12 +40,47 @@ namespace MusicManagementCore.Json
         /// The version of the ToC file format.
         /// </summary>
         [JsonPropertyName("version")]
-        public string Version { get; set; } = Constant.ToCVersion.V2;
+        public string Version { get; set; } = ToCVersion.V2;
+
+        /// <summary>
+        /// A hash of the record's cover art file. Used for determining changes to 
+        /// support updating all files listed in <cref>TrackList</cref> if the art has
+        /// changed.
+        /// </summary>
+        public string CoverHash { get; set; }
 
         /// <summary>
         /// The list of audio files that have been ripped for the "album".
         /// </summary>
         [JsonPropertyName("tracks")]
         public List<TrackV2> TrackList { get; set; } = new List<TrackV2>();
+
+        /// <summary>
+        /// Compute the hash of the cover art file located in the given directory
+        /// and set it as the current value.
+        /// </summary>
+        /// <param name="directory">The directory where the cover art is located. This is 
+        /// usually the same folder where the table of contents will be stored.</param>
+        /// <see cref="StandardFilename.CoverArt"/>
+        public void UpdateHash(string directory)
+        {
+            CoverHash = ComputeHash(directory);
+        }
+
+        /// <summary>
+        /// Compute the hash of the cover art file located in the given directory.
+        /// </summary>
+        /// <param name="directory">The directory where the cover art is located. This is 
+        /// usually the same folder where the table of contents will be stored.</param>
+        /// <returns>A SHA256 hash hex string of the cover art file.</returns>
+        public string ComputeHash(string directory)
+        {
+            var coverFile = new FileInfo(Path.Combine(directory, StandardFilename.CoverArt));
+            using var fileStream = coverFile.OpenRead();
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(fileStream);
+
+            return Convert.ToHexString(bytes);
+        }
     }
 }

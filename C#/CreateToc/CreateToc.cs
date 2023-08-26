@@ -33,33 +33,66 @@ namespace CreateToc
             return 0;
         }
 
-        private string ReplaceCodeStrings(string value)
+        private void EnterDirectory(object _, DirectoryEvent e)
         {
-            var codes = _config.FilenameEncodingConfig.CharacterReplacements;
-            codes.ForEach(c => value = value.Replace(c.Replacement, c.Character));
-            return value;
+            var tocFilename = Path.Combine(e.DirectoryPath, StandardFilename.TableOfContents);
+            if (!File.Exists(tocFilename)) {
+                _records.Add(e.DirectoryPath, new TableOfContentsV2());
+            }
+            else {
+                var version = TableOfContentsUtil.ReadVersion(tocFilename);
+                if (ToCVersion.V1 == version) {
+                    TableOfContentsUtil.MigrateV1ToV2File(tocFilename);
+                    Console.WriteLine($"'{e.DirectoryPath}' V1 table of contents file migrated to V2.");
+                }
+                else {
+                    var toc = TableOfContentsUtil.ReadFromFile<TableOfContentsV2>(tocFilename);
+                    var coverHashUpdated = UpdateCoverHashIfMissing(e.DirectoryPath, toc);
+                    var metaHashUpdated = UpdateMetaHashIfMissing(toc);
+
+                    if (coverHashUpdated || metaHashUpdated) {
+                        JsonWriter.WriteToDirectory(e.DirectoryPath, toc);
+                        Console.WriteLine($"'{e.DirectoryPath}' data hashes in updated.");
+                    }
+                    else {
+                        Console.WriteLine($"'{e.DirectoryPath}' already contains a table of contents file.");
+                    }
+                }
+            }
         }
 
-        private string RemoveCodeStrings(string value)
+        private void LeaveDirectory(object _, DirectoryEvent e)
         {
-            var codes = _config.FilenameEncodingConfig.CharacterReplacements;
-            codes.ForEach(c => value = value.Replace(c.Replacement, " "));
-            return value.Replace(".", "");
+            if (_records.ContainsKey(e.DirectoryPath)) {
+                var toc = _records.First(item => item.Key == e.DirectoryPath);
+                FinalizeRecord(e.DirectoryPath, toc.Value);
+                _records.Remove(e.DirectoryPath);
+
+                Console.WriteLine($"'{e.DirectoryPath}' is the proud owner of a new table of contents file.");
+            }
         }
 
         private void FoundAudioFile(object _, AudioFileEvent e)
         {
-            if (_records.ContainsKey(e.AudioFile.Directory))
-            {
+            if (_records.ContainsKey(e.AudioFile.Directory)) {
                 var toc = _records.First(item => item.Key == e.AudioFile.Directory);
                 toc.Value.TrackList.Add(TrackFromAudioFile(e.AudioFile));
             }
         }
 
+        private string ReplaceCodeStrings(string value)
+        {
+            return _config.FilenameEncodingConfig.ReplaceCodeStrings(value);
+        }
+
+        private string RemoveCodeStrings(string value)
+        {
+            return _config.FilenameEncodingConfig.RemoveCodeStrings(value);
+        }
+
         private TrackV2 TrackFromAudioFile(AudioFile audioFile)
         {
-            var track = new TrackV2
-            {
+            var track = new TrackV2 {
                 Artist = ReplaceCodeStrings(audioFile.MetaData.Artist),
                 Album = ReplaceCodeStrings(audioFile.MetaData.Album),
                 Genre = ReplaceCodeStrings(audioFile.MetaData.Genre),
@@ -68,14 +101,13 @@ namespace CreateToc
                 TrackTitle = ReplaceCodeStrings(audioFile.MetaData.TrackTitle)
             };
 
-            var filename = new AudioFilename
-            {
+            var filename = new AudioFilename {
                 LongName = audioFile.Filename,
                 ShortName = ShortFilename(audioFile)
             };
 
             track.Filename = filename;
-            track.MetaHash = TableOfContentsUtil.HashTags(track);
+            track.UpdateHash();
 
             return track;
         }
@@ -87,42 +119,9 @@ namespace CreateToc
             return $"{metaData.TrackNumber} - {RemoveCodeStrings(metaData.TrackTitle)}{fileInfo.Extension}";
         }
 
-        private void EnterDirectory(object _, DirectoryEvent e)
-        {
-            var tocFilename = Path.Combine(e.DirectoryPath, StandardFilename.TableOfContents);
-            if (!File.Exists(tocFilename))
-            {
-                _records.Add(e.DirectoryPath, new TableOfContentsV2());
-            }
-            else
-            {
-                var version = TableOfContentsUtil.ReadVersion(tocFilename);
-                if (ToCVersion.V1 == version)
-                {
-                    Console.WriteLine($"'{e.DirectoryPath}' contains a V1 table of contents file. Migrating to V2.");
-                    TableOfContentsUtil.MigrateV1ToV2File(tocFilename);
-                }
-                else
-                {
-                    Console.WriteLine($"'{e.DirectoryPath}' already contains a table of contents file.");
-                }
-            }
-        }
-
-        private void LeaveDirectory(object _, DirectoryEvent e)
-        {
-            if (_records.ContainsKey(e.DirectoryPath))
-            {
-                var toc = _records.First(item => item.Key == e.DirectoryPath);
-                FinalizeRecord(e.DirectoryPath, toc.Value);
-                _records.Remove(e.DirectoryPath);
-            }
-        }
-
         private static void FinalizeRecord(string directory, TableOfContentsV2 toc)
         {
-            if (toc.TrackList.Count == 0)
-            {
+            if (toc.TrackList.Count == 0) {
                 return;
             }
 
@@ -130,6 +129,7 @@ namespace CreateToc
             var isCompilation = distinctArtists.Count() > 1;
             toc.TrackList.ForEach(track => track.IsCompilation = isCompilation);
             toc.TrackList.Sort((t1, t2) => t1.TrackNumber.CompareTo(t2.TrackNumber));
+            toc.UpdateHash(directory);
 
             JsonWriter.WriteToDirectory(directory, toc);
             toc.TrackList.ForEach(track => RenameFile(directory, track));
@@ -140,6 +140,29 @@ namespace CreateToc
             File.Move(
                 Path.Combine(directory, track.Filename.LongName),
                 Path.Combine(directory, track.Filename.ShortName));
+        }
+
+        private static bool UpdateCoverHashIfMissing(string directory, TableOfContentsV2 toc)
+        {
+            if (String.IsNullOrEmpty(toc.CoverHash)) {
+                toc.UpdateHash(directory);
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        private static bool UpdateMetaHashIfMissing(TableOfContentsV2 toc)
+        {
+            var updated = false;
+            toc.TrackList.ForEach((track) => {
+                if (String.IsNullOrEmpty(track.MetaHash)) {
+                    track.UpdateHash();
+                    updated = true;
+                }
+            });
+            return updated;
         }
     }
 }

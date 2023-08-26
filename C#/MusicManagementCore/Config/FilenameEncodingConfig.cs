@@ -51,6 +51,30 @@ namespace MusicManagementCore.Config
         /// A list of all character replacement codes.
         /// </summary>
         public List<CharacterReplacement> CharacterReplacements { get; set; }
+
+        /// <summary>
+        /// Replace all HTML encoded characters in the given string with unencoded ones as
+        /// listed in <cref>CharacterReplacements</cref>.
+        /// </summary>
+        /// <param name="value">The value in which to replace all HTML-encoded characters 
+        /// that are configured.</param>
+        /// <returns>A copy of the value with any configured HTML-encoded characters replaced.</returns>
+        public string ReplaceCodeStrings(string value)
+        {
+            CharacterReplacements.ForEach(c => value = value.Replace(c.Replacement, c.Character));
+            return value;
+        }
+
+        /// <summary>
+        /// Remove all unencoded characters from the given string listed in <cref>CharacterReplacements</cref>.
+        /// </summary>
+        /// <param name="value">The value from which to remove all characters that are configured.</param>
+        /// <returns>A copy of the value without the any configured unencoded characters.</returns>
+        public string RemoveCodeStrings(string value)
+        {
+            CharacterReplacements.ForEach(c => value = value.Replace(c.Character, " "));
+            return value.Replace(".", "");
+        }
     }
 
     /// <summary>

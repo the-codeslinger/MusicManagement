@@ -23,8 +23,7 @@ namespace MusicManagementCore.Json
     /// </item>
     /// <item>
     ///     <description>
-    ///     Read ToC.json for compressing to MP3 or other format using short 
-    ///     filename.
+    ///     Read ToC.json for compressing to MP3 or other format using short filename.
     ///     </description>
     /// </item>
     /// </list>

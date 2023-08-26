@@ -1,20 +1,45 @@
-﻿namespace MusicManagementCore.Model
+﻿using MusicManagementCore.Constant;
+using System.IO;
+
+namespace MusicManagementCore.Model
 {
     /// <summary>
     /// Domain object representing the Cover.jpg file of an audio disc.
     /// </summary>
     public class CoverArt
     {
-        public string Filename { get; set; }
+        private readonly string _directory;
 
-        public override bool Equals(object obj)
+        /// <summary>
+        /// Create a new instance.
+        /// </summary>
+        /// <param name="directory">The directory where the cover art file is located.</param>
+        public CoverArt(string directory)
         {
-            return base.Equals(obj);
+            _directory = directory;
         }
 
-        public override int GetHashCode()
+        /// <summary>
+        /// The absolute filename of the cover art file.
+        /// </summary>
+        public string Filename
         {
-            return base.GetHashCode();
+            get {
+                return Path.Combine(_directory, StandardFilename.CoverArt);
+            }
+        }
+
+        /// <summary>
+        /// A Taglib-specific <cref>Taglib.Picture</cref> representing the front cover.
+        /// </summary>
+        public TagLib.Picture FrontCover
+        {
+            get {
+                return new TagLib.Picture(Filename) {
+                    Type = TagLib.PictureType.FrontCover,
+                    MimeType = System.Net.Mime.MediaTypeNames.Image.Jpeg
+                };
+            }
         }
     }
 }

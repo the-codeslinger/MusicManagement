@@ -33,7 +33,7 @@
     public sealed class StandardFilename
     {
         public const string TableOfContents = "ToC.json";
-        public const string AlbumCover = "Cover.jpg";
+        public const string CoverArt = "Cover.jpg";
     }
 
     /// <summary>
@@ -52,5 +52,13 @@
     {
         public const string Input = "%input%";
         public const string Output = "%output%";
+    }
+
+    /// <summary>
+    /// Defines the name of "album artist" to use for sorting compilations.
+    /// </summary>
+    public sealed class CompilationArtist
+    {
+        public const string Name = "Compilation";
     }
 }

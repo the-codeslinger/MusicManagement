@@ -5,7 +5,7 @@ namespace MusicManagementCore.Model
     /// <summary>
     /// Domain object that contains an audio file's meta data for a single track.
     ///
-    /// All meta data is handles as <c>string</c> for simplicity. The data is parsed
+    /// All meta data is handled as <c>string</c> for simplicity. The data is parsed
     /// from the filename and piped into the compressed file's meta data section.
     /// </summary>
     public class MetaData

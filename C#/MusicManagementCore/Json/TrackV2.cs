@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace MusicManagementCore.Json
@@ -71,6 +73,31 @@ namespace MusicManagementCore.Json
         /// </summary>
         [JsonPropertyName("hash")]
         public string MetaHash { get; set; }
+
+        /// <summary>
+        /// Compute the hash based on the current values of <cref>Artist</cref>, <cref>Album</cref>,
+        /// <cref>Genre</cref>, <cref>Year</cref>, <cref>TrackNumber</cref>, 
+        /// and <cref>TrackTitle</cref> and set it as the current value.
+        /// </summary>
+        public void UpdateHash()
+        {
+            MetaHash = ComputeHash();
+        }
+
+        /// <summary>
+        /// Compute the hash based on the current values of <cref>Artist</cref>, <cref>Album</cref>,
+        /// <cref>Genre</cref>, <cref>Year</cref>, <cref>TrackNumber</cref>, 
+        /// and <cref>TrackTitle</cref>.
+        /// </summary>
+        /// <returns>A SHA256 hash hex string of the track's current meta information.</returns>
+        public string ComputeHash()
+        {
+            var hashSource = Artist + Album + Genre + Year + TrackNumber + TrackTitle;
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(hashSource));
+
+            return Convert.ToHexString(bytes);
+        }
 
         public override string ToString()
         {
