@@ -2,7 +2,7 @@
   "profiles": {
     "ConvertMusic": {
       "commandName": "Project",
-      "commandLineArgs": "--config C:\\Users\\lober\\OneDrive\\Code\\GitHub\\MusicManagement\\C#\\CreateToc\\Config.json --format MP3"
+      "commandLineArgs": "--config \"C:\\Users\\lober\\OneDrive\\Code\\GitHub\\MusicManagement\\Config.json\" --format MP3"
     }
   }
 }

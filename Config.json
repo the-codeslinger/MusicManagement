@@ -2,8 +2,7 @@
     "Input": {
         "Path": "E:\\Music\\Compilation",
         "Recurse": true,
-        "Extension": "wav",
-        "Type": "Compilation"
+        "Extension": "wav"
     },
     "Output": {
         "Format": "Genre\\Artist\\Year - Album\\TrackNumber - Title",

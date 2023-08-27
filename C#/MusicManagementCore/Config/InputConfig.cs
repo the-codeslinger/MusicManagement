@@ -32,11 +32,5 @@
         /// only contains the extension without the ".".
         /// </summary>
         public string Extension { get; set; }
-
-        /// <summary>
-        /// Determines if the source is an album or a compilation. 
-        /// See <cref>ToCType</cref> for available options.
-        /// </summary>
-        public string Type { get; set; }
     }
 }
