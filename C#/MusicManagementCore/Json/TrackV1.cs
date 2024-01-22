@@ -1,4 +1,8 @@
 ﻿using System.Text.Json.Serialization;
+using MusicManagementCore.Constant;
+
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace MusicManagementCore.Json
 {
@@ -17,19 +21,19 @@ namespace MusicManagementCore.Json
         /// <summary>
         /// The track's number, usually with a leading 0.
         /// </summary>
-        [JsonPropertyName("track")]
+        [JsonPropertyName(JsonPropertyName.Track)]
         public string Number { get; set; }
 
         /// <summary>
         /// The track's title.
         /// </summary>
-        [JsonPropertyName("title")]
+        [JsonPropertyName(JsonPropertyName.Title)]
         public string Title { get; set; }
 
         /// <summary>
         /// The filenames the audio file is known as.
         /// </summary>
-        [JsonPropertyName("filename")]
+        [JsonPropertyName(JsonPropertyName.Filename)]
         public AudioFilename Filename { get; set; }
     }
 }

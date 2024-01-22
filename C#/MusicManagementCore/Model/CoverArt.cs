@@ -20,26 +20,17 @@ namespace MusicManagementCore.Model
         }
 
         /// <summary>
-        /// The absolute filename of the cover art file.
-        /// </summary>
-        public string Filename
-        {
-            get {
-                return Path.Combine(_directory, StandardFilename.CoverArt);
-            }
-        }
-
-        /// <summary>
         /// A Taglib-specific <cref>Taglib.Picture</cref> representing the front cover.
         /// </summary>
-        public TagLib.Picture FrontCover
-        {
-            get {
-                return new TagLib.Picture(Filename) {
-                    Type = TagLib.PictureType.FrontCover,
-                    MimeType = System.Net.Mime.MediaTypeNames.Image.Jpeg
-                };
-            }
-        }
+        public TagLib.Picture FrontCover =>
+            new(Filename) {
+                Type = TagLib.PictureType.FrontCover,
+                MimeType = System.Net.Mime.MediaTypeNames.Image.Jpeg
+            };
+
+        /// <summary>
+        /// The absolute filename of the cover art file.
+        /// </summary>
+        private string Filename => Path.Combine(_directory, StandardFilename.CoverArt);
     }
 }

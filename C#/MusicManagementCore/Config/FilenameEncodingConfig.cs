@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+// ReSharper disable ClassNeverInstantiated.Global
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace MusicManagementCore.Config
 {
@@ -91,6 +94,7 @@ namespace MusicManagementCore.Config
         /// The human-readable character, e.g., "#", "?", and more.
         /// </summary>
         public string Character { get; set; }
+
         /// <summary>
         /// The HTML code used to encode the character.
         /// </summary>

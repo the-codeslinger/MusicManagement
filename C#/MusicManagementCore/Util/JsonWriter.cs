@@ -9,7 +9,7 @@ namespace MusicManagementCore.Util
     /// <summary>
     /// Helper class for writing table of contents JSON files using <cref>System.Text.Json</cref>.
     /// </summary>
-    public class JsonWriter
+    public static class JsonWriter
     {
         /// <summary>
         /// Write the given table of contents to the given directory using the standard filename

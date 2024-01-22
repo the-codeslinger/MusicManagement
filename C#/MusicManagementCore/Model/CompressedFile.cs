@@ -13,9 +13,9 @@ namespace MusicManagementCore.Model
     /// </summary>
     public class CompressedFile
     {
-        private Configuration _configuration;
-        private Converter _converter;
-        private TrackV2 _track;
+        private readonly Configuration _configuration;
+        private readonly Converter _converter;
+        private readonly TrackV2 _track;
 
         /// <summary>
         /// Create a new instance.
@@ -31,35 +31,10 @@ namespace MusicManagementCore.Model
         }
 
         /// <summary>
-        /// Generates and returns the compressed audio file's destination filename.
-        /// 
-        /// The filename is computed every time. Changes to the track's info result in a 
-        /// different filename.
-        /// </summary>
-        public string DestinationFilename
-        {
-            get {
-                var formatted = _configuration.OutputConfig.Format
-                    .Replace(MetaTagName.Artist, RemoveCodeStrings(_track.IsCompilation ? CompilationArtist.Name : _track.Artist))
-                    .Replace(MetaTagName.Album, RemoveCodeStrings(_track.Album))
-                    .Replace(MetaTagName.Genre, RemoveCodeStrings(_track.Genre))
-                    .Replace(MetaTagName.Year, _track.Year)
-                    .Replace(MetaTagName.TrackNumber, _track.TrackNumber)
-                    .Replace(MetaTagName.Title, RemoveCodeStrings(_track.TrackTitle));
-                return Path.Combine(_converter.Output.Path, formatted + "." + _converter.Type.ToLower());
-            }
-        }
-
-        /// <summary>
         /// Return whether the compressed audio file exists at <cref>DestinationFilename</cref>
         /// or not.
         /// </summary>
-        public bool Exists
-        {
-            get {
-                return File.Exists(DestinationFilename);
-            }
-        }
+        public bool Exists => File.Exists(DestinationFilename);
 
         /// <summary>
         /// Create the complete folder hierarchy to store the compressed audio file based on
@@ -87,9 +62,9 @@ namespace MusicManagementCore.Model
             file.Tag.Title = _track.TrackTitle;
             file.Tag.Track = Convert.ToUInt32(_track.TrackNumber);
             file.Tag.Year = Convert.ToUInt32(_track.Year);
-            file.Tag.Genres = new string[] { _track.Genre };
-            file.Tag.Performers = new string[] { _track.Artist };
-            file.Tag.AlbumArtists = new string[] { _track.IsCompilation ? CompilationArtist.Name : _track.Artist };
+            file.Tag.Genres = new[] { _track.Genre };
+            file.Tag.Performers = new[] { _track.Artist };
+            file.Tag.AlbumArtists = new[] { _track.IsCompilation ? CompilationArtist.Name : _track.Artist };
             file.Tag.Pictures = new TagLib.IPicture[] { new CoverArt(uncompressedSourceDir).FrontCover };
 
             file.Save();
@@ -102,19 +77,37 @@ namespace MusicManagementCore.Model
         /// <param name="uncompressedFilename">The uncompressed source audio file.</param>
         public void Compress(string uncompressedFilename)
         {
-            var args = _converter.Command.Args.ConvertAll(arg => {
-                if (arg == ConverterArgs.Input) {
-                    return uncompressedFilename;
-                }
-                else if (arg == ConverterArgs.Output) {
-                    return DestinationFilename;
-                }
-                else {
-                    return arg;
-                }
+            var args = _converter.Command.Args.ConvertAll(arg =>
+            {
+                return arg switch
+                {
+                    ConverterArgs.Input => uncompressedFilename,
+                    ConverterArgs.Output => DestinationFilename,
+                    _ => arg
+                };
             });
             var process = Process.Start(_converter.Command.Bin, args);
             process.WaitForExit();
+        }
+
+        /// <summary>
+        /// Generates and returns the compressed audio file's destination filename.
+        /// 
+        /// The filename is computed every time. Changes to the track's info result in a 
+        /// different filename.
+        /// </summary>
+        private string DestinationFilename
+        {
+            get {
+                var formatted = _configuration.OutputConfig.Format
+                    .Replace(MetaTagName.Artist, RemoveCodeStrings(_track.IsCompilation ? CompilationArtist.Name : _track.Artist))
+                    .Replace(MetaTagName.Album, RemoveCodeStrings(_track.Album))
+                    .Replace(MetaTagName.Genre, RemoveCodeStrings(_track.Genre))
+                    .Replace(MetaTagName.Year, _track.Year)
+                    .Replace(MetaTagName.TrackNumber, _track.TrackNumber)
+                    .Replace(MetaTagName.Title, RemoveCodeStrings(_track.TrackTitle));
+                return Path.Combine(_converter.Output.Path, formatted + "." + _converter.Type.ToLower());
+            }
         }
 
         private string RemoveCodeStrings(string value)

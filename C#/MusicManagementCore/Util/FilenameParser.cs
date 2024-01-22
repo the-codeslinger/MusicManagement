@@ -67,7 +67,7 @@ namespace MusicManagementCore.Util
 
                 default:
                     // TODO Define better exception.
-                    throw new System.Exception("Unrecognized tag " + tag);
+                    throw new Exception("Unrecognized tag " + tag);
             }
         }
     }

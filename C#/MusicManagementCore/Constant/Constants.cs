@@ -6,7 +6,7 @@
     /// The constants are used as configuration parameters, property names in JSON
     /// objects, and the tags in an audio file, e.g., as an ID3 tag.
     /// </summary>
-    public sealed class MetaTagName
+    public static class MetaTagName
     {
         public const string Artist = "Artist";
         public const string Album = "Album";
@@ -16,21 +16,31 @@
         public const string Title = "Title";
     }
 
-    /// <summary
+    /// <summary>
     /// Defines the names of properties that are used in JSON objects.
     /// </summary>
-    public sealed class JsonPropertyName
+    public static class JsonPropertyName
     {
+        public const string Version = "version";
+        public const string Compilation = "compilation";
+        public const string Artist = "artist";
+        public const string Album = "album";
+        public const string Genre = "genre";
+        public const string Year = "year";
+        public const string Title = "title";
+        public const string Number = "number";
+        public const string Track = "track";
         public const string Tracks = "tracks";
         public const string Filename = "filename";
         public const string FilenameLong = "long";
         public const string FilenameShort = "short";
+        public const string Hash = "hash";
     }
 
     /// <summary>
     /// Standard filenames used by the music management tools.
     /// </summary>
-    public sealed class StandardFilename
+    public static class StandardFilename
     {
         public const string TableOfContents = "ToC.json";
         public const string CoverArt = "Cover.jpg";
@@ -39,7 +49,7 @@
     /// <summary>
     /// Standard values to identify the type of a table of contents JSON file.
     /// </summary>
-    public sealed class ToCVersion
+    public static class ToCVersion
     {
         public const string V1 = "1";
         public const string V2 = "2";
@@ -48,7 +58,7 @@
     /// <summary>
     /// Defines the input and output variables used for the converter command line.
     /// </summary>
-    public sealed class ConverterArgs
+    public static class ConverterArgs
     {
         public const string Input = "%input%";
         public const string Output = "%output%";
@@ -57,7 +67,7 @@
     /// <summary>
     /// Defines the name of "album artist" to use for sorting compilations.
     /// </summary>
-    public sealed class CompilationArtist
+    public static class CompilationArtist
     {
         public const string Name = "Compilation";
     }

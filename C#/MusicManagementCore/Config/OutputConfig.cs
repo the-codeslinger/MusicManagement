@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace MusicManagementCore.Config
 {
@@ -36,13 +38,13 @@ namespace MusicManagementCore.Config
         /// It is assumed that the output format shall always be the same for any 
         /// type of converter.
         /// </summary>
-        public string Format { get; init; }
+        public string Format { get; set; }
 
         /// <summary>
         /// A list of all the configured converters to encode audio files from one
         /// format to another.
         /// </summary>
-        public List<Converter> Converters { get; init; }
+        public List<Converter> Converters { get; set; }
     }
 
     /// <summary>

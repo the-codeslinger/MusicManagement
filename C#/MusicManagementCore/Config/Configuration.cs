@@ -9,10 +9,6 @@ namespace MusicManagementCore.Config
     /// </summary>
     public class Configuration
     {
-        private readonly InputConfig _inputConfig;
-        private readonly OutputConfig _outputConfig;
-        private readonly FilenameEncodingConfig _filenameEncodingConfig;
-
         /// <summary>
         /// Create a new config reader for the given filename.
         ///
@@ -24,9 +20,9 @@ namespace MusicManagementCore.Config
             using var stream = new FileStream(configFilename, FileMode.Open, FileAccess.Read);
             using var json = JsonDocument.Parse(stream);
 
-            _inputConfig = ToObject<InputConfig>(json, "Input");
-            _outputConfig = ToObject<OutputConfig>(json, "Output");
-            _filenameEncodingConfig = ToObject<FilenameEncodingConfig>(json, "FilenameEncoding");
+            InputConfig = ToObject<InputConfig>(json, "Input");
+            OutputConfig = ToObject<OutputConfig>(json, "Output");
+            FilenameEncodingConfig = ToObject<FilenameEncodingConfig>(json, "FilenameEncoding");
         }
 
         /// <summary>
@@ -35,7 +31,7 @@ namespace MusicManagementCore.Config
         /// </summary>
         /// <returns>Returns an <cref>InputConfig</cref> object that contains the 
         /// configuration.</returns>
-        public InputConfig InputConfig { get { return _inputConfig; } }
+        public InputConfig InputConfig { get; }
 
         /// <summary>
         /// Read the part of the configuration file that contains information how to
@@ -43,16 +39,16 @@ namespace MusicManagementCore.Config
         /// </summary>
         /// <returns>Returns an <cref>FilenameEncodingConfig</cref> object that contains 
         /// the configuration.</returns>
-        public FilenameEncodingConfig FilenameEncodingConfig { get { return _filenameEncodingConfig; } }
+        public FilenameEncodingConfig FilenameEncodingConfig { get; }
 
         /// <summary>
         /// Read the part of the configuration file that contains all the converters.
         /// </summary>
         /// <returns>Returns an <cref>OutputConfig</cref> object that contains the 
         /// configuration.</returns>
-        public OutputConfig OutputConfig { get { return _outputConfig; } }
+        public OutputConfig OutputConfig { get; }
 
-        public T ToObject<T>(JsonDocument json, string configPropertyName)
+        private static T ToObject<T>(JsonDocument json, string configPropertyName)
         {
             var element = json.RootElement.GetProperty(configPropertyName);
             return element.Deserialize<T>();

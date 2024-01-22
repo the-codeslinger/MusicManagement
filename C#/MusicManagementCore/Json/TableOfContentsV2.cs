@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
 namespace MusicManagementCore.Json
 {
@@ -39,7 +40,7 @@ namespace MusicManagementCore.Json
         /// <summary>
         /// The version of the ToC file format.
         /// </summary>
-        [JsonPropertyName("version")]
+        [JsonPropertyName(JsonPropertyName.Version)]
         public string Version { get; set; } = ToCVersion.V2;
 
         /// <summary>
@@ -52,8 +53,8 @@ namespace MusicManagementCore.Json
         /// <summary>
         /// The list of audio files that have been ripped for the "album".
         /// </summary>
-        [JsonPropertyName("tracks")]
-        public List<TrackV2> TrackList { get; set; } = new List<TrackV2>();
+        [JsonPropertyName(JsonPropertyName.Tracks)]
+        public List<TrackV2> TrackList { get; set; } = new();
 
         /// <summary>
         /// Compute the hash of the cover art file located in the given directory
@@ -73,7 +74,7 @@ namespace MusicManagementCore.Json
         /// <param name="directory">The directory where the cover art is located. This is 
         /// usually the same folder where the table of contents will be stored.</param>
         /// <returns>A SHA256 hash hex string of the cover art file.</returns>
-        public string ComputeHash(string directory)
+        public static string ComputeHash(string directory)
         {
             var coverFile = new FileInfo(Path.Combine(directory, StandardFilename.CoverArt));
             using var fileStream = coverFile.OpenRead();

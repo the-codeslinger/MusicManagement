@@ -2,6 +2,10 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
+using MusicManagementCore.Constant;
+
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace MusicManagementCore.Json
 {
@@ -21,57 +25,57 @@ namespace MusicManagementCore.Json
         /// Defines whether the track is part of a compilation ("true") or an artist's album
         /// ("false).
         /// </summary>
-        [JsonPropertyName("compilation")]
+        [JsonPropertyName(JsonPropertyName.Compilation)]
         public bool IsCompilation { get; set; }
 
         /// <summary>
         /// The name of the track's artist. For example, this can be a single person 
         /// or a band.
         /// </summary>
-        [JsonPropertyName("artist")]
+        [JsonPropertyName(JsonPropertyName.Artist)]
         public string Artist { get; set; }
 
         /// <summary>
         /// The name of the record.
         /// </summary>
-        [JsonPropertyName("album")]
+        [JsonPropertyName(JsonPropertyName.Album)]
         public string Album { get; set; }
 
         /// <summary>
         /// The genre of the track.
         /// </summary>
-        [JsonPropertyName("genre")]
+        [JsonPropertyName(JsonPropertyName.Genre)]
         public string Genre { get; set; }
 
         /// <summary>
         /// The year the "album" was released.
         /// </summary>
-        [JsonPropertyName("year")]
+        [JsonPropertyName(JsonPropertyName.Year)]
         public string Year { get; set; }
 
         /// <summary>
         /// The track's number, usually with a leading 0.
         /// </summary>
-        [JsonPropertyName("number")]
+        [JsonPropertyName(JsonPropertyName.Number)]
         public string TrackNumber { get; set; }
 
         /// <summary>
         /// The track's title.
         /// </summary>
-        [JsonPropertyName("track")]
+        [JsonPropertyName(JsonPropertyName.Track)]
         public string TrackTitle { get; set; }
 
         /// <summary>
         /// The filenames the audio file is known as.
         /// </summary>
-        [JsonPropertyName("filename")]
+        [JsonPropertyName(JsonPropertyName.Filename)]
         public AudioFilename Filename { get; set; }
 
         /// <summary>
         /// A hash of the audio file's meta information. Used for determining changes to 
         /// support selective update of a single file's tags.
         /// </summary>
-        [JsonPropertyName("hash")]
+        [JsonPropertyName(JsonPropertyName.Hash)]
         public string MetaHash { get; set; }
 
         /// <summary>
@@ -93,9 +97,7 @@ namespace MusicManagementCore.Json
         public string ComputeHash()
         {
             var hashSource = Artist + Album + Genre + Year + TrackNumber + TrackTitle;
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(hashSource));
-
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(hashSource));
             return Convert.ToHexString(bytes);
         }
 

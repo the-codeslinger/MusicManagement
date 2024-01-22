@@ -1,13 +1,13 @@
-﻿using MusicManagementCore.Config;
-using MusicManagementCore.Model;
-using MusicManagementCore.Util;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using MusicManagementCore.Event;
+using MusicManagementCore.Config;
 using MusicManagementCore.Constant;
+using MusicManagementCore.Event;
+using MusicManagementCore.Model;
+using MusicManagementCore.Util;
 
-namespace MusicManagementCore
+namespace MusicManagementCore.Service
 {
     /// <summary>
     /// Helper class to (recursively) iterate the contents of a directory to find files
@@ -99,12 +99,12 @@ namespace MusicManagementCore
             }
         }
 
-        private bool MatchesAudioFile(FileInfo fileInfo)
+        private bool MatchesAudioFile(FileSystemInfo fileInfo)
         {
             return fileInfo.Extension == "." + _inputConfig.Extension;
         }
 
-        private bool MatchesTableOfContentsFile(FileInfo fileInfo)
+        private static bool MatchesTableOfContentsFile(FileSystemInfo fileInfo)
         {
             return fileInfo.Name == StandardFilename.TableOfContents;
         }

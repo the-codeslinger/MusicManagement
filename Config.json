@@ -1,6 +1,6 @@
 ﻿{
     "Input": {
-        "Path": "E:\\Music\\Compilation",
+        "Path": "F:\\Music\\Purchased\\Disc\\_Ripping-Temp",
         "Recurse": true,
         "Extension": "wav"
     },
@@ -10,11 +10,11 @@
             {
                 "Type": "MP3",
                 "Output": {
-                    "Path": "E:\\Music\\Compressed\\MP3"
+                    "Path": "F:\\Music\\Compressed\\MP3"
                 },
                 "Command": {
                     "Args": [ "-V2", "%input%", "%output%" ],
-                    "Bin": "E:\\Apps\\Lame\\lame.exe"
+                    "Bin": "D:\\Applications\\Lame\\lame.exe"
                 }
             },
             {

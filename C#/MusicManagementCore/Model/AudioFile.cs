@@ -13,24 +13,24 @@ namespace MusicManagementCore.Model
         /// The name of the audio file including the extension, excluding the directory
         /// (for example "01 - Winter's Gate.wav").
         /// </summary>
-        public string Filename { get; init; }
+        public string Filename { get; }
 
         /// <summary>
         /// The name of the audio file including the extension and the absolute
         /// directory (for example "D:\Music\Insomnium\01 - Winter's Gate.wav").
         /// </summary>
-        public string AbsolutePath { get; init; }
+        public string AbsolutePath { get; }
 
         /// <summary>
         /// The absolute name of the directory where the audio file was found (for
         /// example "D:\Music\Insomnium").
         /// </summary>
-        public string Directory { get; init; }
+        public string Directory { get; }
 
         /// <summary>
         /// The audio file meta data as inferred from the filename.
         /// </summary>
-        public MetaData MetaData { get; init; }
+        public MetaData MetaData { get; }
 
         /// <summary>
         /// Create a new audio file from a given filename and the associated 

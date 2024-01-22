@@ -1,5 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using MusicManagementCore.Constant;
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace MusicManagementCore.Json
 {
@@ -33,31 +38,31 @@ namespace MusicManagementCore.Json
         /// The name of the "album"s artist. For example, this can be a single person 
         /// or a band.
         /// </summary>
-        [JsonPropertyName("artist")]
+        [JsonPropertyName(JsonPropertyName.Artist)]
         public string Artist { get; set; }
 
         /// <summary>
         /// The name of the audio disc, commonly referred to as an album title.
         /// </summary>
-        [JsonPropertyName("album")]
+        [JsonPropertyName(JsonPropertyName.Album)]
         public string Album { get; set; }
 
         /// <summary>
         /// The genre of the "album".
         /// </summary>
-        [JsonPropertyName("genre")]
+        [JsonPropertyName(JsonPropertyName.Genre)]
         public string Genre { get; set; }
 
         /// <summary>
         /// The year the "album" was released.
         /// </summary>
-        [JsonPropertyName("year")]
+        [JsonPropertyName(JsonPropertyName.Year)]
         public string Year { get; set; }
 
         /// <summary>
         /// The list of audio files that have been ripped for the "album".
         /// </summary>
-        [JsonPropertyName("tracks")]
-        public List<TrackV1> TrackList { get; set; } = new List<TrackV1>();
+        [JsonPropertyName(JsonPropertyName.Tracks)]
+        public List<TrackV1> TrackList { get; set; } = new();
     }
 }

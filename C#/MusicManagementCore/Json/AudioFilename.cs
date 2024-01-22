@@ -1,4 +1,7 @@
 ﻿using System.Text.Json.Serialization;
+using MusicManagementCore.Constant;
+
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace MusicManagementCore.Json
 {
@@ -36,13 +39,13 @@ namespace MusicManagementCore.Json
         /// <summary>
         /// The initial long filename containing all metadata.
         /// </summary>
-        [JsonPropertyName("long")]
+        [JsonPropertyName(JsonPropertyName.FilenameLong)]
         public string LongName { get; set; }
 
         /// <summary>
         /// The final short filename after creating the \c ToC.json file.
         /// </summary>
-        [JsonPropertyName("short")]
+        [JsonPropertyName(JsonPropertyName.FilenameShort)]
         public string ShortName { get; set; }
     }
 }

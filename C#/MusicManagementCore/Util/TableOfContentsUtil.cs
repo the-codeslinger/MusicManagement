@@ -1,4 +1,5 @@
-﻿using MusicManagementCore.Constant;
+﻿using System;
+using MusicManagementCore.Constant;
 using MusicManagementCore.Json;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,7 @@ namespace MusicManagementCore.Util
     /// A helper class to group a few useful methods in one place that are required in several
     /// locations.
     /// </summary>
-    public class TableOfContentsUtil
+    public static class TableOfContentsUtil
     {
         /// <summary>
         /// Read the 'version' property of the given table of contents file.
@@ -25,7 +26,7 @@ namespace MusicManagementCore.Util
             using var json = JsonDocument.Parse(stream);
 
             try {
-                var versionElement = json.RootElement.GetProperty("version");
+                var versionElement = json.RootElement.GetProperty(JsonPropertyName.Version);
                 return versionElement.GetString() ?? ToCVersion.V1;
             }
             catch (KeyNotFoundException) {
@@ -64,7 +65,7 @@ namespace MusicManagementCore.Util
         {
             var tocV1 = ReadFromFile<TableOfContentsV1>(filename);
             var tocV2 = ConvertToV2(tocV1);
-            tocV2.CoverHash = tocV2.ComputeHash(Path.GetDirectoryName(filename));
+            tocV2.CoverHash = TableOfContentsV2.ComputeHash(Path.GetDirectoryName(filename));
             File.Copy(filename, filename + "_v1bak");
             JsonWriter.WriteToFilename(filename, tocV2);
             return tocV2;
@@ -75,7 +76,7 @@ namespace MusicManagementCore.Util
         /// </summary>
         /// <param name="tocV1">The V1 table of contents object.</param>
         /// <returns>The V2 table of contents object based on the values of the V1 object.</returns>
-        public static TableOfContentsV2 ConvertToV2(TableOfContentsV1 tocV1)
+        private static TableOfContentsV2 ConvertToV2(TableOfContentsV1 tocV1)
         {
             var tocV2 = new TableOfContentsV2();
             tocV1.TrackList.ForEach(trackV1 => {
@@ -93,7 +94,7 @@ namespace MusicManagementCore.Util
                 trackV2.UpdateHash();
                 tocV2.TrackList.Add(trackV2);
             });
-            tocV2.TrackList.Sort((t1, t2) => t1.TrackNumber.CompareTo(t2.TrackNumber));
+            tocV2.TrackList.Sort((t1, t2) => string.Compare(t1.TrackNumber, t2.TrackNumber, StringComparison.Ordinal));
 
             return tocV2;
         }
