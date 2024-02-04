@@ -1,13 +1,10 @@
-﻿
-
-using MusicManagementCore;
-using MusicManagementCore.Config;
-using MusicManagementCore.Constant;
+﻿using MusicManagementCore.Constant;
+using MusicManagementCore.Domain.Audio;
+using MusicManagementCore.Domain.Config;
+using MusicManagementCore.Domain.ToC;
 using MusicManagementCore.Event;
-using MusicManagementCore.Json;
-using MusicManagementCore.Model;
+using MusicManagementCore.Service;
 using MusicManagementCore.Util;
-using System;
 
 namespace UpdateTags
 {
@@ -18,23 +15,20 @@ namespace UpdateTags
     /// </summary>
     class UpdateTags
     {
-
         private readonly Options _options;
-        private readonly Configuration _config;
+        private readonly MusicManagementConfig _config;
         private readonly Converter _converter;
 
         public UpdateTags(Options options)
         {
             _options = options;
-            _config = new Configuration(_options.Config);
+            _config = new MusicManagementConfig(_options.Config);
 
             var converter = _config.OutputConfig.Converters.Find(
-                conv => conv.Type.ToLower() == _options.Format.ToLower());
-            if (null == converter)
-            {
-                throw new ArgumentException($"No converter format found for '{_options.Format}'.");
-            }
-            _converter = converter;
+                conv => string.Equals(conv.Type, _options.Format, StringComparison.CurrentCultureIgnoreCase));
+
+            _converter = converter ??
+                         throw new ArgumentException($"No converter format found for '{_options.Format}'.");
         }
 
         public int Run()
@@ -52,21 +46,20 @@ namespace UpdateTags
             if (ToCVersion.V1 == version)
             {
                 throw new InvalidDataException($"File '{e.TableOfContentsFile}' is a v1 file that is not supported. "
-                    + "Use CreateToc.exe to upgrade.");
+                                               + "Use CreateToc.exe to upgrade.");
             }
 
             var toc = TableOfContentsUtil.ReadFromFile<TableOfContentsV2>(e.TableOfContentsFile);
             var directory = Path.GetDirectoryName(e.TableOfContentsFile);
-            
+
             var coverChanged = HasCoverChanged(toc, directory!);
             var anyFileChanged = false;
             toc.TrackList.ForEach(track => anyFileChanged |= HandleTrack(directory!, track, coverChanged));
 
-            if (anyFileChanged || coverChanged)
-            {
-                Console.WriteLine($"Writing updated hashes to table of contents '{e.TableOfContentsFile}'.");
-                JsonWriter.WriteToDirectory(directory, toc);
-            }
+            if (!anyFileChanged && !coverChanged) return;
+            
+            Console.WriteLine($"Writing updated hashes to table of contents '{e.TableOfContentsFile}'.");
+            JsonWriter.WriteToDirectory(directory, toc);
         }
 
         private bool HandleTrack(string directory, TrackV2 track, bool coverChanged)
@@ -74,27 +67,30 @@ namespace UpdateTags
             var compressedFile = new CompressedFile(_config, _converter, track);
             if (!compressedFile.Exists)
             {
-                throw new FileNotFoundException($"{_converter.Type} audio file '{compressedFile.DestinationFilename}' does not exist.");
+                throw new FileNotFoundException(
+                    $"{_converter.Type} audio file '{compressedFile.DestinationFilename}' does not exist.");
             }
 
-            var currentHash = track.ComputeHash();
-            if (currentHash != track.MetaHash || coverChanged)
-            {
-                Console.WriteLine($"Changes detected in file's '{compressedFile.DestinationFilename}' meta tags or cover art.");
-                compressedFile.WriteAudioTags(directory);
-                track.MetaHash = currentHash;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            if (!HasAnyMetaTagChanged(track) && !coverChanged) return false;
+
+            Console.WriteLine(
+                $"Changes detected in file's '{compressedFile.DestinationFilename}' meta tags or cover art.");
+
+            compressedFile.WriteAudioTags(directory);
+            track.UpdateHash();
+            return true;
         }
 
         private static bool HasCoverChanged(TableOfContentsV2 toc, string directory)
         {
-            var currentHash = toc.ComputeHash(directory);
+            var currentHash = TableOfContentsV2.ComputeCoverArtHash(directory);
             return currentHash != toc.CoverHash;
+        }
+
+        private static bool HasAnyMetaTagChanged(TrackV2 track)
+        {
+            var currentHash = track.ComputeHash();
+            return currentHash != track.MetaHash;            
         }
     }
 }

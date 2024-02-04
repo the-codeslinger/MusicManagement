@@ -3,7 +3,7 @@ using MusicManagementCore.Constant;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
-namespace MusicManagementCore.Json
+namespace MusicManagementCore.Domain.ToC
 {
     /// <summary>
     /// Contains the long and the short version of an audio track.

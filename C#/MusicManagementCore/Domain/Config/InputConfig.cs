@@ -1,5 +1,5 @@
 ﻿// ReSharper disable ClassNeverInstantiated.Global
-namespace MusicManagementCore.Config
+namespace MusicManagementCore.Domain.Config
 {
     /// <summary>
     /// Contains information which path to scan, if a recursive scan should be perfomed,

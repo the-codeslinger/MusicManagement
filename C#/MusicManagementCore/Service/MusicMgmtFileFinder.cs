@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using MusicManagementCore.Config;
 using MusicManagementCore.Constant;
+using MusicManagementCore.Domain.Audio;
+using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Event;
-using MusicManagementCore.Model;
 using MusicManagementCore.Util;
 
 namespace MusicManagementCore.Service
@@ -82,7 +82,7 @@ namespace MusicManagementCore.Service
             foreach (var fileInfo in root.GetFiles("*.*")) {
                 if (MatchesAudioFile(fileInfo)) {
                     var metaData = _parser.ParseMetaData(fileInfo.FullName);
-                    var audioFile = new AudioFile(fileInfo.FullName, metaData);
+                    var audioFile = new UncompressedFile(fileInfo.FullName, metaData);
 
                     FoundAudioFile?.Invoke(this, new AudioFileEvent(audioFile));
                 }

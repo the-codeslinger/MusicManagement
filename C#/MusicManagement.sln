@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicManagementCore.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConvertMusic", "ConvertMusic\ConvertMusic.csproj", "{A1A8B65C-2276-40EE-8460-93278A7BE42A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateTags", "UpdateTags\UpdateTags.csproj", "{1375D81B-2725-4591-BB85-D36679F339C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,10 @@ Global
 		{A1A8B65C-2276-40EE-8460-93278A7BE42A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1A8B65C-2276-40EE-8460-93278A7BE42A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1A8B65C-2276-40EE-8460-93278A7BE42A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1375D81B-2725-4591-BB85-D36679F339C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1375D81B-2725-4591-BB85-D36679F339C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1375D81B-2725-4591-BB85-D36679F339C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1375D81B-2725-4591-BB85-D36679F339C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

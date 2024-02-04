@@ -1,12 +1,13 @@
-﻿using MusicManagementCore.Constant;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using MusicManagementCore.Constant;
+
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
-namespace MusicManagementCore.Json
+namespace MusicManagementCore.Domain.ToC
 {
     /// <summary>
     /// Provides convenient accessors for a compilation table of contents JSON file.
@@ -65,7 +66,7 @@ namespace MusicManagementCore.Json
         /// <see cref="StandardFilename.CoverArt"/>
         public void UpdateHash(string directory)
         {
-            CoverHash = ComputeHash(directory);
+            CoverHash = ComputeCoverArtHash(directory);
         }
 
         /// <summary>
@@ -74,7 +75,7 @@ namespace MusicManagementCore.Json
         /// <param name="directory">The directory where the cover art is located. This is 
         /// usually the same folder where the table of contents will be stored.</param>
         /// <returns>A SHA256 hash hex string of the cover art file.</returns>
-        public static string ComputeHash(string directory)
+        public static string ComputeCoverArtHash(string directory)
         {
             var coverFile = new FileInfo(Path.Combine(directory, StandardFilename.CoverArt));
             using var fileStream = coverFile.OpenRead();

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MusicManagementCore.Model
+namespace MusicManagementCore.Domain.Audio
 {
     /// <summary>
     /// Domain object that contains an audio file's meta data for a single track.

@@ -1,9 +1,9 @@
 ﻿using System;
 using MusicManagementCore.Constant;
-using MusicManagementCore.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using MusicManagementCore.Domain.ToC;
 
 namespace MusicManagementCore.Util
 {
@@ -65,7 +65,7 @@ namespace MusicManagementCore.Util
         {
             var tocV1 = ReadFromFile<TableOfContentsV1>(filename);
             var tocV2 = ConvertToV2(tocV1);
-            tocV2.CoverHash = TableOfContentsV2.ComputeHash(Path.GetDirectoryName(filename));
+            tocV2.CoverHash = TableOfContentsV2.ComputeCoverArtHash(Path.GetDirectoryName(filename));
             File.Copy(filename, filename + "_v1bak");
             JsonWriter.WriteToFilename(filename, tocV2);
             return tocV2;

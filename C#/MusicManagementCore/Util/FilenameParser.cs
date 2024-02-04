@@ -1,8 +1,9 @@
-﻿using MusicManagementCore.Config;
-using MusicManagementCore.Model;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
+using MusicManagementCore.Constant;
+using MusicManagementCore.Domain.Audio;
+using MusicManagementCore.Domain.Config;
 
 namespace MusicManagementCore.Util
 {
@@ -41,27 +42,27 @@ namespace MusicManagementCore.Util
         private static void InsertData(string value, string tag, MetaData metaData)
         {
             switch (tag) {
-                case Constant.MetaTagName.Artist:
+                case MetaTagName.Artist:
                     metaData.Artist = value;
                     break;
 
-                case Constant.MetaTagName.Album:
+                case MetaTagName.Album:
                     metaData.Album = value;
                     break;
 
-                case Constant.MetaTagName.Genre:
+                case MetaTagName.Genre:
                     metaData.Genre = value;
                     break;
 
-                case Constant.MetaTagName.Year:
+                case MetaTagName.Year:
                     metaData.Year = value;
                     break;
 
-                case Constant.MetaTagName.TrackNumber:
+                case MetaTagName.TrackNumber:
                     metaData.TrackNumber = value;
                     break;
 
-                case Constant.MetaTagName.Title:
+                case MetaTagName.Title:
                     metaData.TrackTitle = value;
                     break;
 

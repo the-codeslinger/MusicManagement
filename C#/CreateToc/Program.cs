@@ -7,8 +7,8 @@ namespace CreateToc
         static int Main(string[] args)
         {
             var parserResult = Parser.Default.ParseArguments<Options>(args);
-            var convertMusic = new CreateToc(parserResult.Value);
-            return convertMusic.Run();
+            var createToc = new CreateToc(parserResult.Value);
+            return createToc.Run();
         }
     }
 }

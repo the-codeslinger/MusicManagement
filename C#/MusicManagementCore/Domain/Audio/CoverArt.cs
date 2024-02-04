@@ -1,7 +1,7 @@
-﻿using MusicManagementCore.Constant;
-using System.IO;
+﻿using System.IO;
+using MusicManagementCore.Constant;
 
-namespace MusicManagementCore.Model
+namespace MusicManagementCore.Domain.Audio
 {
     /// <summary>
     /// Domain object representing the Cover.jpg file of an audio disc.

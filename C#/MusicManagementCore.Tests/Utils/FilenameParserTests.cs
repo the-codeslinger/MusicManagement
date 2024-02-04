@@ -1,11 +1,9 @@
-﻿using MusicManagementCore.Config;
-using MusicManagementCore.Model;
-using MusicManagementCore.Util;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using MusicManagementCore.Domain.Audio;
+using MusicManagementCore.Domain.Config;
+using MusicManagementCore.Util;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MusicManagementCore.Tests.Utils
 {

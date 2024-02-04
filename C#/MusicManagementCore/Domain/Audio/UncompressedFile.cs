@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace MusicManagementCore.Model
+namespace MusicManagementCore.Domain.Audio
 {
     /// <summary>
     /// Represents a single audio file as found on the filesystem.
     /// </summary>
-    public class AudioFile
+    public class UncompressedFile
     {
         /// <summary>
         /// The name of the audio file including the extension, excluding the directory
@@ -38,7 +38,7 @@ namespace MusicManagementCore.Model
         /// </summary>
         /// <param name="filename">Absolute or relative filename of the audio file.</param>
         /// <param name="metaData">The parsed meta data.</param>
-        public AudioFile(string filename, MetaData metaData)
+        public UncompressedFile(string filename, MetaData metaData)
         {
             Filename = Path.GetFileName(filename);
             AbsolutePath = Path.GetFullPath(filename);
@@ -48,7 +48,7 @@ namespace MusicManagementCore.Model
 
         public override bool Equals(object obj)
         {
-            return obj is AudioFile file &&
+            return obj is UncompressedFile file &&
                    Filename == file.Filename &&
                    AbsolutePath == file.AbsolutePath &&
                    Directory == file.Directory &&

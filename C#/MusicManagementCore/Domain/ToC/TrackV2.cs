@@ -7,7 +7,7 @@ using MusicManagementCore.Constant;
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace MusicManagementCore.Json
+namespace MusicManagementCore.Domain.ToC
 {
     /// <summary>
     /// An <cref>CompilationTrack</cref> object that represents a single uncompressed audio 

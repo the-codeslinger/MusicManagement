@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace MusicManagementCore.Config
+namespace MusicManagementCore.Domain.Config
 {
     /// <summary>
     /// Contains the configuration for scanning a source directory for audio files.

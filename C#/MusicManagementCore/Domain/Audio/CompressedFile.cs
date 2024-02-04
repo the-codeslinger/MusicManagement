@@ -1,11 +1,11 @@
-﻿using MusicManagementCore.Config;
-using MusicManagementCore.Constant;
-using MusicManagementCore.Json;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
+using MusicManagementCore.Constant;
+using MusicManagementCore.Domain.Config;
+using MusicManagementCore.Domain.ToC;
 
-namespace MusicManagementCore.Model
+namespace MusicManagementCore.Domain.Audio
 {
     /// <summary>
     /// Represents an audio file ready to be compressed. This class is used to facilitate
@@ -13,19 +13,19 @@ namespace MusicManagementCore.Model
     /// </summary>
     public class CompressedFile
     {
-        private readonly Configuration _configuration;
+        private readonly MusicManagementConfig _musicManagementConfig;
         private readonly Converter _converter;
         private readonly TrackV2 _track;
 
         /// <summary>
         /// Create a new instance.
         /// </summary>
-        /// <param name="configuration">The complete configuration. Aspects of all subsection are required.</param>
+        /// <param name="musicManagementConfig">The complete configuration. Aspects of all subsection are required.</param>
         /// <param name="converter">The exact converter to use for compression.</param>
         /// <param name="track">The table of contents track information for this particular audio file.</param>
-        public CompressedFile(Configuration configuration, Converter converter, TrackV2 track)
+        public CompressedFile(MusicManagementConfig musicManagementConfig, Converter converter, TrackV2 track)
         {
-            _configuration = configuration;
+            _musicManagementConfig = musicManagementConfig;
             _converter = converter;
             _track = track;
         }
@@ -96,10 +96,10 @@ namespace MusicManagementCore.Model
         /// The filename is computed every time. Changes to the track's info result in a 
         /// different filename.
         /// </summary>
-        private string DestinationFilename
+        public string DestinationFilename
         {
             get {
-                var formatted = _configuration.OutputConfig.Format
+                var formatted = _musicManagementConfig.OutputConfig.Format
                     .Replace(MetaTagName.Artist, RemoveCodeStrings(_track.IsCompilation ? CompilationArtist.Name : _track.Artist))
                     .Replace(MetaTagName.Album, RemoveCodeStrings(_track.Album))
                     .Replace(MetaTagName.Genre, RemoveCodeStrings(_track.Genre))
@@ -112,7 +112,7 @@ namespace MusicManagementCore.Model
 
         private string RemoveCodeStrings(string value)
         {
-            return _configuration.FilenameEncodingConfig.RemoveCodeStrings(value);
+            return _musicManagementConfig.FilenameEncodingConfig.RemoveCodeStrings(value);
         }
     }
 }

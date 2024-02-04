@@ -1,4 +1,4 @@
-﻿using MusicManagementCore.Model;
+﻿using MusicManagementCore.Domain.Audio;
 
 namespace MusicManagementCore.Event
 {
@@ -8,11 +8,11 @@ namespace MusicManagementCore.Event
     /// </summary>
     public class AudioFileEvent
     {
-        public AudioFileEvent(AudioFile audioFile)
+        public AudioFileEvent(UncompressedFile uncompressedFile)
         {
-            AudioFile = audioFile;
+            UncompressedFile = uncompressedFile;
         }
 
-        public AudioFile AudioFile { get; }
+        public UncompressedFile UncompressedFile { get; }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using System.IO;
 using System.Text.Json;
 
-namespace MusicManagementCore.Config
+namespace MusicManagementCore.Domain.Config
 {
     /// <summary>
     /// Convenience class to read individual parts of JSON configuration files into
     /// config objects.
     /// </summary>
-    public class Configuration
+    public class MusicManagementConfig
     {
         /// <summary>
         /// Create a new config reader for the given filename.
@@ -15,7 +15,7 @@ namespace MusicManagementCore.Config
         /// The JSON file will be read immediately and kept in memory.
         /// </summary>
         /// <param name="configFilename">Absolute or relative filename of the JSON configuration.</param>
-        public Configuration(string configFilename)
+        public MusicManagementConfig(string configFilename)
         {
             using var stream = new FileStream(configFilename, FileMode.Open, FileAccess.Read);
             using var json = JsonDocument.Parse(stream);
