@@ -37,15 +37,21 @@ namespace MusicManagementCore.Domain.ToC
     public class AudioFilenameV2
     {
         /// <summary>
-        /// The initial long filename containing all metadata.
+        /// The initial long file name containing all metadata.
         /// </summary>
-        [JsonPropertyName(JsonPropertyName.FilenameCompressed)]
-        public string CompressedName { get; set; }
+        [JsonPropertyName(JsonPropertyName.FilenameOriginal)]
+        public string OriginalName { get; set; }
 
         /// <summary>
-        /// The final short filename after creating the \c ToC.json file.
+        /// The short uncompressed source file name after creating the \c ToC.json file.
         /// </summary>
-        [JsonPropertyName(JsonPropertyName.FilenameShort)]
-        public string ShortName { get; set; }
+        [JsonPropertyName(JsonPropertyName.FilenameIn)]
+        public string InName { get; set; }
+
+        /// <summary>
+        /// The final output file name of the compressed file.
+        /// </summary>
+        [JsonPropertyName(JsonPropertyName.FilenameOut)]
+        public string OutName { get; set; }
     }
 }

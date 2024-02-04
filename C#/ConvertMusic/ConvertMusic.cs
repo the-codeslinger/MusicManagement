@@ -25,7 +25,7 @@ namespace ConvertMusic
                     $"No converter format found for '{options.Format}'.");
             }
 
-            _compressor = new FileCompressor(config, converter);
+            _compressor = new FileCompressor(converter);
             _fileFinder =
                 new MusicMgmtFileFinder(config.InputConfig, config.FilenameEncodingConfig);
         }
@@ -51,7 +51,7 @@ namespace ConvertMusic
         private void HandleTrack(string sourceDirectory, string relativeOutDir,
             TrackV2 track)
         {
-            var source = Path.Combine(sourceDirectory, track.Filename.ShortName);
+            var source = Path.Combine(sourceDirectory, track.Filename.InName);
             if (!File.Exists(source))
             {
                 throw new FileNotFoundException($"Audio file '{source}' does not exist.");

@@ -104,8 +104,8 @@ namespace MusicManagementCore.Util
 
                     Filename = new AudioFilenameV2
                     {
-                        CompressedName = trackV1.FilenameV1.LongName,
-                        ShortName = trackV1.FilenameV1.ShortName
+                        OriginalName = trackV1.FilenameV1.LongName,
+                        InName = trackV1.FilenameV1.ShortName
                     }
                 };
                 trackV2.UpdateHash();

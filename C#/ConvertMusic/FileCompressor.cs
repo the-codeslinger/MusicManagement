@@ -3,18 +3,16 @@ using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC;
-using MusicManagementCore.Util;
 
 namespace ConvertMusic;
 
-public class FileCompressor(MusicManagementConfig config, Converter converter)
+public class FileCompressor(Converter converter)
 {
     public void Compress(string directory, string relativeOutDir, string source,
         TrackV2 track)
     {
-        var fileName = new TrackFilePathBuilder(config.OutputConfig.Format).BuildFile(track);
         var destinationFileName = Path.Combine(converter.Output.Path, relativeOutDir,
-            fileName + "." + converter.Type.ToLower());
+            track.Filename.OutName + "." + converter.Type.ToLower());
         if (File.Exists(destinationFileName)) return;
 
         MakeDestinationFolder(destinationFileName);

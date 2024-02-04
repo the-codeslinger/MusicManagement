@@ -12,10 +12,17 @@ using MusicManagementCore.Util;
 
 namespace CreateToc
 {
-    internal class CreateToc(Options options)
+    internal class CreateToc
     {
         private readonly Dictionary<string, TableOfContentsV2> _records = new();
-        private readonly MusicManagementConfig _config = new(options.Config);
+        private readonly MusicManagementConfig _config;
+        private readonly TrackFilePathBuilder _trackFileBuilder;
+
+        public CreateToc(Options options)
+        {
+            _config = new MusicManagementConfig(options.Config);
+            _trackFileBuilder = new TrackFilePathBuilder(_config.OutputConfig.Format);
+        }
 
         public int Run()
         {
@@ -101,8 +108,9 @@ namespace CreateToc
 
             var filename = new AudioFilenameV2
             {
-                CompressedName = uncompressedFile.Filename,
-                ShortName = ShortFilename(uncompressedFile)
+                OriginalName = uncompressedFile.Filename,
+                InName = ShortFilename(uncompressedFile),
+                OutName = _trackFileBuilder.BuildFile(track)
             };
 
             track.Filename = filename;
@@ -130,7 +138,7 @@ namespace CreateToc
 
         private string BuildCompressedOutPath(IEnumerable<TrackV2> tracks)
         {
-            return new TrackFilePathBuilder(_config.OutputConfig.Format).BuildPath(tracks.First());
+            return _trackFileBuilder.BuildPath(tracks.First());
         }
 
         private static string ShortFilename(UncompressedFile uncompressedFile)
@@ -144,8 +152,8 @@ namespace CreateToc
         private static void RenameFile(string directory, TrackV2 track)
         {
             File.Move(
-                Path.Combine(directory, track.Filename.CompressedName),
-                Path.Combine(directory, track.Filename.ShortName));
+                Path.Combine(directory, track.Filename.OriginalName),
+                Path.Combine(directory, track.Filename.InName));
         }
 
         private static bool UpdateCoverHashIfMissing(string directory, TableOfContentsV2 toc)

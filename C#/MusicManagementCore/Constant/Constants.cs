@@ -34,9 +34,10 @@
         public const string Track = "track";
         public const string Tracks = "tracks";
         public const string Filename = "filename";
-        public const string FilenameCompressed = "compressed";
+        public const string FilenameOriginal = "original";
         public const string FilenameLong = "long";
-        public const string FilenameShort = "short";
+        public const string FilenameIn = "in";
+        public const string FilenameOut = "out";
         public const string MetaHash = "meta-hash";
     }
 
