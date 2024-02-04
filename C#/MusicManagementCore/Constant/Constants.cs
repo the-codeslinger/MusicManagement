@@ -22,6 +22,8 @@
     public static class JsonPropertyName
     {
         public const string Version = "version";
+        public const string RelativeOutDir = "relative-out-dir";
+        public const string CoverHash = "cover-hash";
         public const string Compilation = "compilation";
         public const string Artist = "artist";
         public const string Album = "album";
@@ -32,9 +34,10 @@
         public const string Track = "track";
         public const string Tracks = "tracks";
         public const string Filename = "filename";
+        public const string FilenameCompressed = "compressed";
         public const string FilenameLong = "long";
         public const string FilenameShort = "short";
-        public const string Hash = "hash";
+        public const string MetaHash = "meta-hash";
     }
 
     /// <summary>

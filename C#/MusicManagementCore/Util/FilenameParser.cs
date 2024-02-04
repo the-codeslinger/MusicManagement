@@ -12,13 +12,8 @@ namespace MusicManagementCore.Util
     /// filename based on a <cref>MetaDataInputConfig</cref>. This configuration
     /// determines the tags to read and the order they appear in the filename.
     /// </summary>
-    public class FilenameParser
+    public class FilenameParser(FilenameEncodingConfig config)
     {
-        private readonly FilenameEncodingConfig _filenameEncodingConfig;
-
-        public FilenameParser(FilenameEncodingConfig config)
-            => _filenameEncodingConfig = config;
-
         /// <summary>
         /// Parse an audio file's filename and extract the meta data according to
         /// the encoding configuration.
@@ -29,29 +24,29 @@ namespace MusicManagementCore.Util
         public MetaData ParseMetaData(string filename)
         {
             var name = Path.GetFileNameWithoutExtension(filename);
-            var exploded = name.Split(_filenameEncodingConfig.Delimiter);
+            var exploded = name.Split(config.Delimiter);
 
             var metaData = new MetaData();
-            foreach (var zipped in exploded.Zip(_filenameEncodingConfig.TagFormat, Tuple.Create)) {
+            foreach (var zipped in exploded.Zip(config.TagFormat, Tuple.Create)) {
                 InsertData(zipped.Item1, zipped.Item2, metaData);
             }
 
             return metaData;
         }
 
-        private static void InsertData(string value, string tag, MetaData metaData)
+        private void InsertData(string value, string tag, MetaData metaData)
         {
             switch (tag) {
                 case MetaTagName.Artist:
-                    metaData.Artist = value;
+                    metaData.Artist = config.ReplaceCodeStrings(value);
                     break;
 
                 case MetaTagName.Album:
-                    metaData.Album = value;
+                    metaData.Album = config.ReplaceCodeStrings(value);
                     break;
 
                 case MetaTagName.Genre:
-                    metaData.Genre = value;
+                    metaData.Genre = config.ReplaceCodeStrings(value);
                     break;
 
                 case MetaTagName.Year:
@@ -63,7 +58,7 @@ namespace MusicManagementCore.Util
                     break;
 
                 case MetaTagName.Title:
-                    metaData.TrackTitle = value;
+                    metaData.TrackTitle = config.ReplaceCodeStrings(value);
                     break;
 
                 default:

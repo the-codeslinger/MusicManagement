@@ -1,5 +1,4 @@
 ﻿using MusicManagementCore.Constant;
-using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC;
 using MusicManagementCore.Event;
@@ -10,27 +9,31 @@ namespace ConvertMusic
 {
     internal class ConvertMusic
     {
-        private readonly Options _options;
-        private readonly MusicManagementConfig _config;
-        private readonly Converter _converter;
+        private readonly FileCompressor _compressor;
+        private readonly MusicMgmtFileFinder _fileFinder;
 
         public ConvertMusic(Options options)
         {
-            _options = options;
-            _config = new MusicManagementConfig(_options.Config);
+            var config = new MusicManagementConfig(options.Config);
 
-            var converter = _config.OutputConfig.Converters.Find(
-                conv => string.Equals(conv.Type, _options.Format, StringComparison.CurrentCultureIgnoreCase));
-            _converter = converter ??
-                         throw new ArgumentException($"No converter format found for '{_options.Format}'.");
+            var converter = config.OutputConfig.Converters.Find(
+                conv => string.Equals(conv.Type, options.Format,
+                    StringComparison.CurrentCultureIgnoreCase));
+            if (null == converter)
+            {
+                throw new ArgumentException(
+                    $"No converter format found for '{options.Format}'.");
+            }
+
+            _compressor = new FileCompressor(config, converter);
+            _fileFinder =
+                new MusicMgmtFileFinder(config.InputConfig, config.FilenameEncodingConfig);
         }
 
         public int Run()
         {
-            var fileFinder = new MusicMgmtFileFinder(_config.InputConfig, _config.FilenameEncodingConfig);
-            fileFinder.FoundTableOfContentsFile += FoundTableOfContentsFile;
-
-            fileFinder.Scan();
+            _fileFinder.FoundTableOfContentsFile += FoundTableOfContentsFile;
+            _fileFinder.Scan();
             return 0;
         }
 
@@ -41,24 +44,20 @@ namespace ConvertMusic
                 ? TableOfContentsUtil.MigrateV1ToV2File(e.TableOfContentsFile)
                 : TableOfContentsUtil.ReadFromFile<TableOfContentsV2>(e.TableOfContentsFile);
 
-            var directory = Path.GetDirectoryName(e.TableOfContentsFile);
-            toc.TrackList.ForEach(track => HandleTrack(directory!, track));
+            var sourceDir = Path.GetDirectoryName(e.TableOfContentsFile);
+            toc.TrackList.ForEach(track => HandleTrack(sourceDir!, toc.RelativeOutDir, track));
         }
 
-        private void HandleTrack(string directory, TrackV2 track)
+        private void HandleTrack(string sourceDirectory, string relativeOutDir,
+            TrackV2 track)
         {
-            var source = Path.Combine(directory, track.Filename.ShortName);
+            var source = Path.Combine(sourceDirectory, track.Filename.ShortName);
             if (!File.Exists(source))
             {
                 throw new FileNotFoundException($"Audio file '{source}' does not exist.");
             }
 
-
-            var compressedFile = new CompressedFile(_config, _converter, track);
-            if (compressedFile.Exists) return;
-            compressedFile.MakeDestinationFolder();
-            compressedFile.Compress(source);
-            compressedFile.WriteAudioTags(directory);
+            _compressor.Compress(sourceDirectory, relativeOutDir, source, track);
         }
     }
 }

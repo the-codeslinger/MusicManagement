@@ -43,19 +43,26 @@ namespace MusicManagementCore.Domain.ToC
         /// </summary>
         [JsonPropertyName(JsonPropertyName.Version)]
         public string Version { get; set; } = ToCVersion.V2;
+        
+        /// <summary>
+        /// The relative output directory based on the output format string.
+        /// </summary>
+        [JsonPropertyName(JsonPropertyName.RelativeOutDir)]
+        public string RelativeOutDir { get; set; }
 
         /// <summary>
         /// A hash of the record's cover art file. Used for determining changes to 
         /// support updating all files listed in <cref>TrackList</cref> if the art has
         /// changed.
         /// </summary>
+        [JsonPropertyName(JsonPropertyName.CoverHash)]
         public string CoverHash { get; set; }
 
         /// <summary>
         /// The list of audio files that have been ripped for the "album".
         /// </summary>
         [JsonPropertyName(JsonPropertyName.Tracks)]
-        public List<TrackV2> TrackList { get; set; } = new();
+        public List<TrackV2> TrackList { get; set; } = [];
 
         /// <summary>
         /// Compute the hash of the cover art file located in the given directory

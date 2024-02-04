@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.Json;
 
 namespace MusicManagementCore.Domain.Config
@@ -17,6 +18,11 @@ namespace MusicManagementCore.Domain.Config
         /// <param name="configFilename">Absolute or relative filename of the JSON configuration.</param>
         public MusicManagementConfig(string configFilename)
         {
+            if (!File.Exists(configFilename))
+            {
+                throw new ArgumentException($"Config file {configFilename} not found.");
+            }
+
             using var stream = new FileStream(configFilename, FileMode.Open, FileAccess.Read);
             using var json = JsonDocument.Parse(stream);
 

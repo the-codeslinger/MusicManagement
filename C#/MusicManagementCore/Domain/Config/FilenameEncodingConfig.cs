@@ -54,7 +54,7 @@ namespace MusicManagementCore.Domain.Config
         /// <summary>
         /// A list of all character replacement codes.
         /// </summary>
-        public List<CharacterReplacement> CharacterReplacements { get; set; }
+        public List<CharacterReplacement> CharacterReplacements { get; init; }
 
         /// <summary>
         /// Replace all HTML encoded characters in the given string with unencoded ones as
@@ -65,40 +65,8 @@ namespace MusicManagementCore.Domain.Config
         /// <returns>A copy of the value with any configured HTML-encoded characters replaced.</returns>
         public string ReplaceCodeStrings(string value)
         {
-            CharacterReplacements.ForEach(c => value = value.Replace(c.Replacement, c.Character));
+            CharacterReplacements.ForEach(c => value = c.ReplaceCode(value));
             return value;
         }
-
-        /// <summary>
-        /// Remove all unencoded characters from the given string listed in <cref>CharacterReplacements</cref>.
-        /// </summary>
-        /// <param name="value">The value from which to remove all characters that are configured.</param>
-        /// <returns>A copy of the value without the any configured unencoded characters.</returns>
-        public string RemoveCodeStrings(string value)
-        {
-            CharacterReplacements.ForEach(c => value = value.Replace(c.Character, " "));
-            return value.Replace(".", "");
-        }
-    }
-
-    /// <summary>
-    /// Contains a list of characters and their replacement code for use in file and
-    /// folder names.
-    /// 
-    /// NTFS and other filesystems do not allow a certain number of characters. Such
-    /// characters are replaced by HTML codes when audio files are initially read
-    /// from disc and the most important meta data is encoded in the file's name.
-    /// </summary>
-    public class CharacterReplacement
-    {
-        /// <summary>
-        /// The human-readable character, e.g., "#", "?", and more.
-        /// </summary>
-        public string Character { get; set; }
-
-        /// <summary>
-        /// The HTML code used to encode the character.
-        /// </summary>
-        public string Replacement { get; set; }
     }
 }

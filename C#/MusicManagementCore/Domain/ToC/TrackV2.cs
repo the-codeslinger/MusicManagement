@@ -69,13 +69,13 @@ namespace MusicManagementCore.Domain.ToC
         /// The filenames the audio file is known as.
         /// </summary>
         [JsonPropertyName(JsonPropertyName.Filename)]
-        public AudioFilename Filename { get; set; }
+        public AudioFilenameV2 Filename { get; set; }
 
         /// <summary>
         /// A hash of the audio file's meta information. Used for determining changes to 
         /// support selective update of a single file's tags.
         /// </summary>
-        [JsonPropertyName(JsonPropertyName.Hash)]
+        [JsonPropertyName(JsonPropertyName.MetaHash)]
         public string MetaHash { get; set; }
 
         /// <summary>

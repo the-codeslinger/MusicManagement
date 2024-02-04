@@ -34,13 +34,13 @@ namespace MusicManagementCore.Domain.ToC
     /// This class contains the initial long filename after ripping to a WAV file and the
     /// short filename used for archiving and converting to a compressed format.
     /// </summary>
-    public class AudioFilename
+    public class AudioFilenameV2
     {
         /// <summary>
         /// The initial long filename containing all metadata.
         /// </summary>
-        [JsonPropertyName(JsonPropertyName.FilenameLong)]
-        public string LongName { get; set; }
+        [JsonPropertyName(JsonPropertyName.FilenameCompressed)]
+        public string CompressedName { get; set; }
 
         /// <summary>
         /// The final short filename after creating the \c ToC.json file.

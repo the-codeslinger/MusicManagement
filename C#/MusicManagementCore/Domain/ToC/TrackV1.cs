@@ -34,6 +34,6 @@ namespace MusicManagementCore.Domain.ToC
         /// The filenames the audio file is known as.
         /// </summary>
         [JsonPropertyName(JsonPropertyName.Filename)]
-        public AudioFilename Filename { get; set; }
+        public AudioFilenameV1 FilenameV1 { get; set; }
     }
 }

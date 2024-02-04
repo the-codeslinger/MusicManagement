@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MusicManagementCore.Domain.Audio;
 
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -39,13 +40,29 @@ namespace MusicManagementCore.Domain.Config
         /// It is assumed that the output format shall always be the same for any 
         /// type of converter.
         /// </summary>
-        public string Format { get; set; }
+        public Format Format { get; set; }
 
         /// <summary>
         /// A list of all the configured converters to encode audio files from one
         /// format to another.
         /// </summary>
         public List<Converter> Converters { get; set; }
+    }
+    
+    /// <summary>
+    /// Defines the path and file format strings.
+    /// </summary>
+    public class Format
+    {
+        /// <summary>
+        /// The format for the destination directory relative to the converter output path.
+        /// </summary>
+        public string Path { get; set; }
+    
+        /// <summary>
+        /// The file name format (excluding the path).
+        /// </summary>
+        public string File { get; set; }
     }
 
     /// <summary>

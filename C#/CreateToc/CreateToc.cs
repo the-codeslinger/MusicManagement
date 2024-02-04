@@ -19,7 +19,8 @@ namespace CreateToc
 
         public int Run()
         {
-            var fileFinder = new MusicMgmtFileFinder(_config.InputConfig, _config.FilenameEncodingConfig);
+            var fileFinder =
+                new MusicMgmtFileFinder(_config.InputConfig, _config.FilenameEncodingConfig);
             fileFinder.EnterDirectory += EnterDirectory;
             fileFinder.LeaveDirectory += LeaveDirectory;
             fileFinder.FoundAudioFile += FoundAudioFile;
@@ -31,26 +32,34 @@ namespace CreateToc
         private void EnterDirectory(object _, DirectoryEvent e)
         {
             var tocFilename = Path.Combine(e.DirectoryPath, StandardFilename.TableOfContents);
-            if (!File.Exists(tocFilename)) {
+            if (!File.Exists(tocFilename))
+            {
                 _records.Add(e.DirectoryPath, new TableOfContentsV2());
             }
-            else {
+            else
+            {
                 var version = TableOfContentsUtil.ReadVersion(tocFilename);
-                if (ToCVersion.V1 == version) {
+                if (ToCVersion.V1 == version)
+                {
                     TableOfContentsUtil.MigrateV1ToV2File(tocFilename);
-                    Console.WriteLine($"'{e.DirectoryPath}' V1 table of contents file migrated to V2.");
+                    Console.WriteLine(
+                        $"'{e.DirectoryPath}' V1 table of contents file migrated to V2.");
                 }
-                else {
+                else
+                {
                     var toc = TableOfContentsUtil.ReadFromFile<TableOfContentsV2>(tocFilename);
                     var coverHashUpdated = UpdateCoverHashIfMissing(e.DirectoryPath, toc);
                     var metaHashUpdated = UpdateMetaHashIfMissing(toc);
 
-                    if (coverHashUpdated || metaHashUpdated) {
+                    if (coverHashUpdated || metaHashUpdated)
+                    {
                         JsonWriter.WriteToDirectory(e.DirectoryPath, toc);
                         Console.WriteLine($"'{e.DirectoryPath}' data hashes updated.");
                     }
-                    else {
-                        Console.WriteLine($"'{e.DirectoryPath}' already contains a table of contents file.");
+                    else
+                    {
+                        Console.WriteLine(
+                            $"'{e.DirectoryPath}' already contains a table of contents file.");
                     }
                 }
             }
@@ -59,18 +68,16 @@ namespace CreateToc
         private void LeaveDirectory(object _, DirectoryEvent e)
         {
             if (!_records.ContainsKey(e.DirectoryPath)) return;
-            
+
             var toc = _records.First(item => item.Key == e.DirectoryPath);
             FinalizeRecord(e.DirectoryPath, toc.Value);
             _records.Remove(e.DirectoryPath);
-
-            Console.WriteLine($"'{e.DirectoryPath}' is the proud owner of a new table of contents file.");
         }
 
         private void FoundAudioFile(object _, AudioFileEvent e)
         {
             if (!_records.ContainsKey(e.UncompressedFile.Directory)) return;
-            
+
             var toc = _records.First(item => item.Key == e.UncompressedFile.Directory);
             toc.Value.TrackList.Add(TrackFromAudioFile(e.UncompressedFile));
         }
@@ -80,14 +87,10 @@ namespace CreateToc
             return _config.FilenameEncodingConfig.ReplaceCodeStrings(value);
         }
 
-        private string RemoveCodeStrings(string value)
-        {
-            return _config.FilenameEncodingConfig.RemoveCodeStrings(value);
-        }
-
         private TrackV2 TrackFromAudioFile(UncompressedFile uncompressedFile)
         {
-            var track = new TrackV2 {
+            var track = new TrackV2
+            {
                 Artist = ReplaceCodeStrings(uncompressedFile.MetaData.Artist),
                 Album = ReplaceCodeStrings(uncompressedFile.MetaData.Album),
                 Genre = ReplaceCodeStrings(uncompressedFile.MetaData.Genre),
@@ -96,8 +99,9 @@ namespace CreateToc
                 TrackTitle = ReplaceCodeStrings(uncompressedFile.MetaData.TrackTitle)
             };
 
-            var filename = new AudioFilename {
-                LongName = uncompressedFile.Filename,
+            var filename = new AudioFilenameV2
+            {
+                CompressedName = uncompressedFile.Filename,
                 ShortName = ShortFilename(uncompressedFile)
             };
 
@@ -107,31 +111,40 @@ namespace CreateToc
             return track;
         }
 
-        private string ShortFilename(UncompressedFile uncompressedFile)
-        {
-            var fileInfo = new FileInfo(uncompressedFile.Filename);
-            var metaData = uncompressedFile.MetaData;
-            return $"{metaData.TrackNumber} - {RemoveCodeStrings(metaData.TrackTitle)}{fileInfo.Extension}";
-        }
-
-        private static void FinalizeRecord(string directory, TableOfContentsV2 toc)
+        private void FinalizeRecord(string directory, TableOfContentsV2 toc)
         {
             if (toc.TrackList.Count == 0) return;
 
             var distinctArtists = toc.TrackList.DistinctBy(track => track.Artist);
             var isCompilation = distinctArtists.Count() > 1;
             toc.TrackList.ForEach(track => track.IsCompilation = isCompilation);
-            toc.TrackList.Sort((t1, t2) => string.Compare(t1.TrackNumber, t2.TrackNumber, StringComparison.Ordinal));
+            toc.TrackList.Sort((t1, t2) =>
+                string.Compare(t1.TrackNumber, t2.TrackNumber, StringComparison.Ordinal));
             toc.UpdateHash(directory);
+            toc.RelativeOutDir = BuildCompressedOutPath(toc.TrackList);
 
             JsonWriter.WriteToDirectory(directory, toc);
             toc.TrackList.ForEach(track => RenameFile(directory, track));
+            Console.WriteLine($"'{directory}' table of contents created");
+        }
+
+        private string BuildCompressedOutPath(IEnumerable<TrackV2> tracks)
+        {
+            return new TrackFilePathBuilder(_config.OutputConfig.Format).BuildPath(tracks.First());
+        }
+
+        private static string ShortFilename(UncompressedFile uncompressedFile)
+        {
+            var fileInfo = new FileInfo(uncompressedFile.Filename);
+            var metaData = uncompressedFile.MetaData;
+            var cleanedTrackName = FileSystemUtil.RemoveInvalidFileNameChars(metaData.TrackTitle);
+            return $"{metaData.TrackNumber} - {cleanedTrackName}{fileInfo.Extension}";
         }
 
         private static void RenameFile(string directory, TrackV2 track)
         {
             File.Move(
-                Path.Combine(directory, track.Filename.LongName),
+                Path.Combine(directory, track.Filename.CompressedName),
                 Path.Combine(directory, track.Filename.ShortName));
         }
 
@@ -140,7 +153,6 @@ namespace CreateToc
             if (!string.IsNullOrEmpty(toc.CoverHash)) return false;
             toc.UpdateHash(directory);
             return true;
-
         }
 
         private static bool UpdateMetaHashIfMissing(TableOfContentsV2 toc)

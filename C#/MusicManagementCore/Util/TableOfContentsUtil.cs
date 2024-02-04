@@ -25,11 +25,13 @@ namespace MusicManagementCore.Util
             using var stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
             using var json = JsonDocument.Parse(stream);
 
-            try {
+            try
+            {
                 var versionElement = json.RootElement.GetProperty(JsonPropertyName.Version);
                 return versionElement.GetString() ?? ToCVersion.V1;
             }
-            catch (KeyNotFoundException) {
+            catch (KeyNotFoundException)
+            {
                 // If "version" does not exist, we have a V1 at our hands.
                 return ToCVersion.V1;
             }
@@ -50,9 +52,12 @@ namespace MusicManagementCore.Util
             using var json = JsonDocument.Parse(stream);
 
             var toc = json.RootElement.Deserialize<T>();
-            if (null == toc) {
-                throw new InvalidDataException($"File '{filename}' is not a valid table of contents.");
+            if (null == toc)
+            {
+                throw new InvalidDataException(
+                    $"File '{filename}' is not a valid table of contents.");
             }
+
             return toc;
         }
 
@@ -65,10 +70,16 @@ namespace MusicManagementCore.Util
         {
             var tocV1 = ReadFromFile<TableOfContentsV1>(filename);
             var tocV2 = ConvertToV2(tocV1);
-            tocV2.CoverHash = TableOfContentsV2.ComputeCoverArtHash(Path.GetDirectoryName(filename));
+            tocV2.CoverHash =
+                TableOfContentsV2.ComputeCoverArtHash(Path.GetDirectoryName(filename));
             File.Copy(filename, filename + "_v1bak");
             JsonWriter.WriteToFilename(filename, tocV2);
             return tocV2;
+        }
+
+        public static string MakeCompressedDirString(TrackV2 track)
+        {
+            return "";
         }
 
         /// <summary>
@@ -79,8 +90,10 @@ namespace MusicManagementCore.Util
         private static TableOfContentsV2 ConvertToV2(TableOfContentsV1 tocV1)
         {
             var tocV2 = new TableOfContentsV2();
-            tocV1.TrackList.ForEach(trackV1 => {
-                var trackV2 = new TrackV2 {
+            tocV1.TrackList.ForEach(trackV1 =>
+            {
+                var trackV2 = new TrackV2
+                {
                     Artist = tocV1.Artist,
                     Album = tocV1.Album,
                     Genre = tocV1.Genre,
@@ -89,12 +102,17 @@ namespace MusicManagementCore.Util
                     TrackNumber = trackV1.Number,
                     TrackTitle = trackV1.Title,
 
-                    Filename = trackV1.Filename
+                    Filename = new AudioFilenameV2
+                    {
+                        CompressedName = trackV1.FilenameV1.LongName,
+                        ShortName = trackV1.FilenameV1.ShortName
+                    }
                 };
                 trackV2.UpdateHash();
                 tocV2.TrackList.Add(trackV2);
             });
-            tocV2.TrackList.Sort((t1, t2) => string.Compare(t1.TrackNumber, t2.TrackNumber, StringComparison.Ordinal));
+            tocV2.TrackList.Sort((t1, t2) =>
+                string.Compare(t1.TrackNumber, t2.TrackNumber, StringComparison.Ordinal));
 
             return tocV2;
         }
