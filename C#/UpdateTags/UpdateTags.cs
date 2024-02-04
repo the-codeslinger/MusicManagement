@@ -56,36 +56,46 @@ namespace UpdateTags
             }
 
             var toc = TableOfContentsUtil.ReadFromFile<TableOfContentsV2>(e.TableOfContentsFile);
-            var directory = Path.GetDirectoryName(e.TableOfContentsFile);
+            var tocDir = Path.GetDirectoryName(e.TableOfContentsFile);
 
-            var coverChanged = HasCoverChanged(toc, directory!);
+            var coverChanged = HasCoverChanged(toc, tocDir!);
             var anyFileChanged = false;
             toc.TrackList.ForEach(track =>
-                anyFileChanged |= HandleTrack(directory!, track, coverChanged));
+                anyFileChanged |= HandleTrack(tocDir!, track, coverChanged));
 
             if (!anyFileChanged && !coverChanged) return;
 
             Console.WriteLine(
                 $"Writing updated hashes to table of contents '{e.TableOfContentsFile}'.");
-            JsonWriter.WriteToDirectory(directory, toc);
+            JsonWriter.WriteToDirectory(tocDir, toc);
         }
 
-        private bool HandleTrack(string directory, TrackV2 track, bool coverChanged)
+        private bool HandleTrack(string relativeOutDir, TrackV2 track, bool coverChanged)
         {
-            var compressedFile = new CompressedFile(_config, _converter, track);
-            if (!compressedFile.Exists)
+            var compressedFileName = Path.Combine(_converter.Output.Path, relativeOutDir,
+                track.Filename.OutName + "." + _converter.Type.ToLower());
+            if (!File.Exists(compressedFileName))
             {
                 throw new FileNotFoundException(
-                    $"{_converter.Type} audio file '{compressedFile.DestinationFilename}' does not exist.");
+                    $"{_converter.Type} audio file '{compressedFileName}' does not exist.");
             }
 
             if (!HasAnyMetaTagChanged(track) && !coverChanged) return false;
 
             Console.WriteLine(
-                $"Changes detected in file's '{compressedFile.DestinationFilename}' meta tags or cover art.");
+                $"Changes detected in file's '{compressedFileName}' meta tags or cover art.");
 
-            compressedFile.WriteAudioTags(directory);
+            // Write updated tags.
+            // Move to new relative dir.
+            // Remove old relative dir(s) if empty.
+            
+            // Update toc with cover hash.
+            // Update toc with meta hash.
+            // Update toc with relative dir.
+            // Update toc with out file name.
+            
             track.UpdateHash();
+            
             return true;
         }
 
