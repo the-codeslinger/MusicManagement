@@ -1,6 +1,7 @@
 ﻿using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC;
+using MusicManagementCore.Domain.ToC.V2;
 using MusicManagementCore.Event;
 using MusicManagementCore.Service;
 using MusicManagementCore.Util;
@@ -11,12 +12,13 @@ namespace ConvertMusic
     {
         private readonly FileCompressor _compressor;
         private readonly MusicMgmtFileFinder _fileFinder;
+        private readonly MusicManagementConfig _config;
 
         public ConvertMusic(Options options)
         {
-            var config = new MusicManagementConfig(options.Config);
+            _config = new MusicManagementConfig(options.Config);
 
-            var converter = config.OutputConfig.Converters.Find(
+            var converter = _config.OutputConfig.Converters.Find(
                 conv => string.Equals(conv.Type, options.Format,
                     StringComparison.CurrentCultureIgnoreCase));
             if (null == converter)
@@ -26,8 +28,7 @@ namespace ConvertMusic
             }
 
             _compressor = new FileCompressor(converter);
-            _fileFinder =
-                new MusicMgmtFileFinder(config.InputConfig, config.FilenameEncodingConfig);
+            _fileFinder = new MusicMgmtFileFinder(_config.InputConfig);
         }
 
         public int Run()
@@ -39,25 +40,24 @@ namespace ConvertMusic
 
         private void FoundTableOfContentsFile(object _, TableOfContentsFileEvent e)
         {
-            var version = TableOfContentsUtil.ReadVersion(e.TableOfContentsFile);
+            var version = TableOfContentsUtil.ReadVersion(e.Filename);
             var toc = ToCVersion.V1 == version
-                ? TableOfContentsUtil.MigrateV1ToV2File(e.TableOfContentsFile)
-                : TableOfContentsUtil.ReadFromFile<TableOfContentsV2>(e.TableOfContentsFile);
+                ? TableOfContentsUtil.MigrateV1ToV2File(e.Filename, _config)
+                : TableOfContentsUtil.ReadFromFile<TableOfContents>(e.Filename);
 
-            var sourceDir = Path.GetDirectoryName(e.TableOfContentsFile);
-            toc.TrackList.ForEach(track => HandleTrack(sourceDir!, toc.RelativeOutDir, track));
+            var sourceDir = Path.GetDirectoryName(e.Filename);
+            toc.TrackList.ForEach(track => HandleTrack(sourceDir!, track));
         }
 
-        private void HandleTrack(string sourceDirectory, string relativeOutDir,
-            TrackV2 track)
+        private void HandleTrack(string sourceDirectory, Track track)
         {
-            var source = Path.Combine(sourceDirectory, track.Filename.InName);
+            var source = Path.Combine(sourceDirectory, track.Files.Uncompressed);
             if (!File.Exists(source))
             {
                 throw new FileNotFoundException($"Audio file '{source}' does not exist.");
             }
 
-            _compressor.Compress(sourceDirectory, relativeOutDir, source, track);
+            _compressor.Compress(sourceDirectory, source, track);
         }
     }
 }

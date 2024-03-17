@@ -6,11 +6,6 @@
     /// </summary>
     public class DirectoryEvent
     {
-        public DirectoryEvent(string directoryPath)
-        {
-            DirectoryPath = directoryPath;
-        }
-
-        public string DirectoryPath { get; }
+        public string Path { get; init; }
     }
 }

@@ -6,11 +6,6 @@
     /// </summary>
     public class TableOfContentsFileEvent
     {
-        public TableOfContentsFileEvent(string tableOfContents)
-        {
-            TableOfContentsFile = tableOfContents;
-        }
-
-        public string TableOfContentsFile { get; }
+        public string Filename { get; init; }
     }
 }

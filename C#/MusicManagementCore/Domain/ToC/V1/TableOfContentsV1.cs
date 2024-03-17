@@ -6,7 +6,7 @@ using MusicManagementCore.Constant;
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable ClassNeverInstantiated.Global
 
-namespace MusicManagementCore.Domain.ToC
+namespace MusicManagementCore.Domain.ToC.V1
 {
     /// <summary>
     /// Provides convenient accessors for an artist's album table of contents JSON file.

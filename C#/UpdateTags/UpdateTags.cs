@@ -2,6 +2,7 @@
 using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC;
+using MusicManagementCore.Domain.ToC.V2;
 using MusicManagementCore.Event;
 using MusicManagementCore.Service;
 using MusicManagementCore.Util;
@@ -37,8 +38,7 @@ namespace UpdateTags
 
         public int Run()
         {
-            var fileFinder =
-                new MusicMgmtFileFinder(_config.InputConfig, _config.FilenameEncodingConfig);
+            var fileFinder = new MusicMgmtFileFinder(_config.InputConfig);
             fileFinder.FoundTableOfContentsFile += FoundTableOfContentsFile;
 
             fileFinder.Scan(_uncompressedDir);
@@ -47,68 +47,81 @@ namespace UpdateTags
 
         private void FoundTableOfContentsFile(object _, TableOfContentsFileEvent e)
         {
-            var version = TableOfContentsUtil.ReadVersion(e.TableOfContentsFile);
+            var version = TableOfContentsUtil.ReadVersion(e.Filename);
             if (ToCVersion.V1 == version)
             {
                 throw new InvalidDataException(
-                    $"File '{e.TableOfContentsFile}' is a v1 file that is not supported. "
+                    $"File '{e.Filename}' is a v1 file that is not supported. "
                     + "Use CreateToc.exe to upgrade.");
             }
 
-            var toc = TableOfContentsUtil.ReadFromFile<TableOfContentsV2>(e.TableOfContentsFile);
-            var tocDir = Path.GetDirectoryName(e.TableOfContentsFile);
+            var toc = TableOfContentsUtil.ReadFromFile<TableOfContents>(e.Filename);
+            var tocDir = Path.GetDirectoryName(e.Filename);
 
             var coverChanged = HasCoverChanged(toc, tocDir!);
             var anyFileChanged = false;
             toc.TrackList.ForEach(track =>
-                anyFileChanged |= HandleTrack(tocDir!, track, coverChanged));
+                anyFileChanged |= HandleTrack(tocDir!, toc.RelativeOutDir, track, coverChanged));
 
             if (!anyFileChanged && !coverChanged) return;
 
             Console.WriteLine(
-                $"Writing updated hashes to table of contents '{e.TableOfContentsFile}'.");
+                $"Writing updated hashes to table of contents '{e.Filename}'.");
             JsonWriter.WriteToDirectory(tocDir, toc);
+
+            // Remove old relative dir(s) if empty.
+            // Update toc with cover hash.
+            // Update toc with relative dir.
         }
 
-        private bool HandleTrack(string relativeOutDir, TrackV2 track, bool coverChanged)
+        private bool HandleTrack(string tocDir, string relativeOutDir, Track track,
+            bool coverChanged)
         {
-            var compressedFileName = Path.Combine(_converter.Output.Path, relativeOutDir,
-                track.Filename.OutName + "." + _converter.Type.ToLower());
-            if (!File.Exists(compressedFileName))
-            {
-                throw new FileNotFoundException(
-                    $"{_converter.Type} audio file '{compressedFileName}' does not exist.");
-            }
-
             if (!HasAnyMetaTagChanged(track) && !coverChanged) return false;
 
-            Console.WriteLine(
-                $"Changes detected in file's '{compressedFileName}' meta tags or cover art.");
+            var currentCompressedFileName = Path.Combine(_converter.Output.Path, relativeOutDir,
+                track.Filename.OutName + "." + _converter.Type.ToLower());
+            var pathBuilder = new TrackFilePathBuilder(_config.OutputConfig.Format);
 
-            // Write updated tags.
+            Console.WriteLine(
+                $"Changes detected in file's '{currentCompressedFileName}' meta tags or cover art.");
+
+            if (!File.Exists(currentCompressedFileName))
+            {
+                throw new FileNotFoundException(
+                    $"{_converter.Type} audio file '{currentCompressedFileName}' does not exist.");
+            }
+
+            AudioTagWriter.WriteTags(tocDir, currentCompressedFileName, track);
+            track.UpdateMetaHash();
+            track.Filename.OutName = pathBuilder.BuildFile(track);
+            
             // Move to new relative dir.
-            // Remove old relative dir(s) if empty.
-            
-            // Update toc with cover hash.
-            // Update toc with meta hash.
-            // Update toc with relative dir.
-            // Update toc with out file name.
-            
-            track.UpdateHash();
-            
+            var newRelativeOutDir = pathBuilder.BuildPath(track);
+            if (relativeOutDir != newRelativeOutDir)
+            {
+                Console.WriteLine($"Move track to new folder {newRelativeOutDir}");
+            }
+
             return true;
         }
 
-        private static bool HasCoverChanged(TableOfContentsV2 toc, string directory)
+        private static bool HasCoverChanged(TableOfContents toc, string directory)
         {
-            var currentHash = TableOfContentsV2.ComputeCoverArtHash(directory);
+            var currentHash = TableOfContents.ComputeCoverArtHash(directory);
             return currentHash != toc.CoverHash;
         }
 
-        private static bool HasAnyMetaTagChanged(TrackV2 track)
+        private static bool HasAnyMetaTagChanged(Track track)
         {
-            var currentHash = track.ComputeHash();
+            var currentHash = track.ComputeMetaHash();
             return currentHash != track.MetaHash;
+        }
+
+        private string BuildDestinationFileName(Track track)
+        {
+            var fileName = new TrackFilePathBuilder(_config.OutputConfig.Format).Build(track);
+            return Path.Combine(_converter.Output.Path, fileName + "." + _converter.Type.ToLower());
         }
     }
 }

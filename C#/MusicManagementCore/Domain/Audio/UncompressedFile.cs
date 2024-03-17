@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 
 namespace MusicManagementCore.Domain.Audio
 {
@@ -28,36 +26,14 @@ namespace MusicManagementCore.Domain.Audio
         public string Directory { get; }
 
         /// <summary>
-        /// The audio file meta data as inferred from the filename.
-        /// </summary>
-        public MetaData MetaData { get; }
-
-        /// <summary>
-        /// Create a new audio file from a given filename and the associated 
-        /// <cref>MetaData</cref>.
+        /// Create a new uncompressed audio file from a given filename and the associated.
         /// </summary>
         /// <param name="filename">Absolute or relative filename of the audio file.</param>
-        /// <param name="metaData">The parsed meta data.</param>
-        public UncompressedFile(string filename, MetaData metaData)
+        public UncompressedFile(string filename)
         {
-            Filename = Path.GetFileName(filename);
             AbsolutePath = Path.GetFullPath(filename);
-            Directory = Path.GetDirectoryName(filename);
-            MetaData = metaData;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is UncompressedFile file &&
-                   Filename == file.Filename &&
-                   AbsolutePath == file.AbsolutePath &&
-                   Directory == file.Directory &&
-                   EqualityComparer<MetaData>.Default.Equals(MetaData, file.MetaData);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Filename, AbsolutePath, Directory, MetaData);
+            Filename = Path.GetFileName(AbsolutePath);
+            Directory = Path.GetDirectoryName(AbsolutePath);
         }
     }
 }

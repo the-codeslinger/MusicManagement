@@ -1,0 +1,72 @@
+{
+  "version": "2",
+  "cover-hash": "BD3347B1A22250E05DDE64929005825DF2CEB20BC8CD9D791B461201051C7968",
+  "formatted-dirs": [
+    {
+      "converter-type": "MP3",
+      "dir": "Power Metal\\Iced Earth\\2004 - The glorious burden Gettysburg (1863)"
+    }
+  ],
+  "tracks": [
+    {
+      "compilation": false,
+      "meta": {
+        "artist": "Iced Earth",
+        "album": "The glorious burden: Gettysburg (1863)",
+        "genre": "Power Metal",
+        "year": "2004",
+        "number": "01",
+        "track": "The devil to pay",
+        "hash": "5ED981B33749DF42FA70DF3151C0CFE4CE1FC90C93E49CDD49AECA7AE0E0883D"
+      },
+      "uncompressed": {
+        "original": "Iced Earth#The glorious burden&58; Gettysburg (1863)#Power Metal#2004#01#The devil to pay.wav",
+        "file": "01 - The devil to pay.wav"
+      },
+      "compressed": {
+        "dir": "Power Metal\\Iced Earth\\2004 - The glorious burden Gettysburg (1863)",
+        "file": "01 - The devil to pay"
+      }
+    },
+    {
+      "compilation": false,
+      "meta": {
+        "artist": "Iced Earth",
+        "album": "The glorious burden: Gettysburg (1863)",
+        "genre": "Power Metal",
+        "year": "2004",
+        "number": "02",
+        "track": "Hold at all costs",
+        "hash": "423CFB884A6D61D3EC645CF754E02F528430A0055E0B4E69F7A6332775004490"
+      },
+      "uncompressed": {
+        "original": "Iced Earth#The glorious burden&58; Gettysburg (1863)#Power Metal#2004#02#Hold at all costs.wav",
+        "file": "02 - Hold at all costs.wav"
+      },
+      "compressed": {
+        "dir": "Power Metal\\Iced Earth\\2004 - The glorious burden Gettysburg (1863)",
+        "file": "02 - Hold at all costs"
+      }
+    },
+    {
+      "compilation": false,
+      "meta": {
+        "artist": "Iced Earth",
+        "album": "The glorious burden: Gettysburg (1863)",
+        "genre": "Power Metal",
+        "year": "2004",
+        "number": "03",
+        "track": "High water mark",
+        "hash": "1097473DE1CD1DEBA1120112D2D8F312CD0A1B04C7C693494D689E74AA4B35F1"
+      },
+      "uncompressed": {
+        "original": "Iced Earth#The glorious burden&58; Gettysburg (1863)#Power Metal#2004#03#High water mark.wav",
+        "file": "03 - High water mark.wav"
+      },
+      "compressed": {
+        "dir": "Power Metal\\Iced Earth\\2004 - The glorious burden Gettysburg (1863)",
+        "file": "03 - High water mark"
+      }
+    }
+  ]
+}

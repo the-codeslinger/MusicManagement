@@ -68,5 +68,18 @@ namespace MusicManagementCore.Domain.Config
             CharacterReplacements.ForEach(c => value = c.ReplaceCode(value));
             return value;
         }
+
+        /// <summary>
+        /// Replace all human-readable characters in the given string with HTML encoded ones as
+        /// listed in <cref>CharacterReplacements</cref>.
+        /// </summary>
+        /// <param name="value">The value in which to replace all human-readable characters 
+        /// with the configured HTML ones.</param>
+        /// <returns>A copy of the value with any configured human-readable character replaced.</returns>
+        public string InsertCodeStrings(string value)
+        {
+            CharacterReplacements.ForEach(c => value = c.InsertCode(value));
+            return value;
+        }
     }
 }

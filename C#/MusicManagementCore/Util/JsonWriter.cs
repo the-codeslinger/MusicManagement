@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.ToC;
+using MusicManagementCore.Domain.ToC.V2;
 
 namespace MusicManagementCore.Util
 {
@@ -18,7 +19,7 @@ namespace MusicManagementCore.Util
         /// <param name="directory">The destination directory to write the table of contents 
         /// file to.</param>
         /// <param name="toc">The table of contents to write.</param>
-        public static void WriteToDirectory(string directory, TableOfContentsV2 toc)
+        public static void WriteToDirectory(string directory, TableOfContents toc)
         {
             WriteToFilename(Path.Combine(directory, StandardFilename.TableOfContents), toc);
         }
@@ -28,7 +29,7 @@ namespace MusicManagementCore.Util
         /// </summary>
         /// <param name="filename">The filename of the table of contents file to write.</param>
         /// <param name="toc">The table of contents to write.</param>
-        public static void WriteToFilename(string filename, TableOfContentsV2 toc)
+        public static void WriteToFilename(string filename, TableOfContents toc)
         {
             var options = new JsonSerializerOptions {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,

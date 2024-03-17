@@ -4,7 +4,7 @@ using MusicManagementCore.Constant;
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace MusicManagementCore.Domain.ToC
+namespace MusicManagementCore.Domain.ToC.V1
 {
     /// <summary>
     /// An <cref>AlbumTrack</cref> object that represents a single uncompressed audio 

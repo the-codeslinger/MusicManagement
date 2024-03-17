@@ -14,7 +14,7 @@ namespace MusicManagementCore.Service
     /// relevant to music management. This includes audio files to convert as well as
     /// table of contents JSON files.
     /// </summary>
-    public class MusicMgmtFileFinder(InputConfig config, FilenameEncodingConfig encodingConfig)
+    public class MusicMgmtFileFinder(InputConfig config)
     {
         public delegate void EnterDirectoryHandler(object sender, DirectoryEvent e);
 
@@ -47,8 +47,6 @@ namespace MusicManagementCore.Service
         /// Emitted when a file <cref>StandardFilename.TableOfContents</cref> is found.
         /// </summary>
         public event FoundTableOfContentsFileHandler FoundTableOfContentsFile;
-
-        private readonly FilenameParser _parser = new(encodingConfig);
 
         /// <summary>
         /// Scans the <cref>InputConfig.Path</cref> for files that match 
@@ -95,25 +93,23 @@ namespace MusicManagementCore.Service
 
         private async Task WalkRecursive(DirectoryInfo root)
         {
-            EnterDirectory?.Invoke(this, new DirectoryEvent(root.FullName));
+            EnterDirectory?.Invoke(this, new DirectoryEvent { Path = root.FullName });
 
             foreach (var fileInfo in root.GetFiles("*.*"))
             {
                 if (MatchesAudioFile(fileInfo))
                 {
-                    var metaData = _parser.ParseMetaData(fileInfo.FullName);
-                    var audioFile = new UncompressedFile(fileInfo.FullName, metaData);
-
-                    FoundAudioFile?.Invoke(this, new AudioFileEvent(audioFile));
+                    var audioFile = new UncompressedFile(fileInfo.FullName);
+                    FoundAudioFile?.Invoke(this, new AudioFileEvent { UncompressedFile = audioFile });
                 }
                 else if (MatchesTableOfContentsFile(fileInfo))
                 {
                     FoundTableOfContentsFile?.Invoke(this,
-                        new TableOfContentsFileEvent(fileInfo.FullName));
+                        new TableOfContentsFileEvent { Filename = fileInfo.FullName });
                 }
             }
 
-            LeaveDirectory?.Invoke(this, new DirectoryEvent(root.FullName));
+            LeaveDirectory?.Invoke(this, new DirectoryEvent { Path = root.FullName });
 
             if (config.Recurse)
             {

@@ -1,5 +1,4 @@
-﻿using System.IO;
-using MusicManagementCore.Constant;
+﻿using MusicManagementCore.Constant;
 
 namespace MusicManagementCore.Domain.Audio
 {
@@ -8,22 +7,22 @@ namespace MusicManagementCore.Domain.Audio
     /// </summary>
     public class CoverArt
     {
-        private readonly string _directory;
-
         /// <summary>
-        /// Create a new instance.
+        /// Construct a CoverArt from the base directory of the <cref>StandardFilename.CoverArt</cref> file.
         /// </summary>
-        /// <param name="directory">The directory where the cover art file is located.</param>
-        public CoverArt(string directory)
+        /// <param name="directory">Directory path that contains the cover art file.</param>
+        /// <returns>An instance with the absolute filename of the cover art file.</returns>
+        public static CoverArt OfDirectory(string directory)
         {
-            _directory = directory;
+            var path = System.IO.Path.Combine(directory, StandardFilename.CoverArt);
+            return new CoverArt { Path = System.IO.Path.GetFullPath(path) };
         }
 
         /// <summary>
         /// A Taglib-specific <cref>Taglib.Picture</cref> representing the front cover.
         /// </summary>
         public TagLib.Picture FrontCover =>
-            new(Filename) {
+            new(Path) {
                 Type = TagLib.PictureType.FrontCover,
                 MimeType = System.Net.Mime.MediaTypeNames.Image.Jpeg
             };
@@ -31,6 +30,6 @@ namespace MusicManagementCore.Domain.Audio
         /// <summary>
         /// The absolute filename of the cover art file.
         /// </summary>
-        private string Filename => Path.Combine(_directory, StandardFilename.CoverArt);
+        public string Path { get; init; }
     }
 }

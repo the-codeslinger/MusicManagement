@@ -8,11 +8,6 @@ namespace MusicManagementCore.Event
     /// </summary>
     public class AudioFileEvent
     {
-        public AudioFileEvent(UncompressedFile uncompressedFile)
-        {
-            UncompressedFile = uncompressedFile;
-        }
-
-        public UncompressedFile UncompressedFile { get; }
+        public UncompressedFile UncompressedFile { get; init; }
     }
 }

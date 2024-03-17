@@ -3,21 +3,22 @@ using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC;
+using MusicManagementCore.Domain.ToC.V2;
+using MusicManagementCore.Util;
 
 namespace ConvertMusic;
 
 public class FileCompressor(Converter converter)
 {
-    public void Compress(string directory, string relativeOutDir, string source,
-        TrackV2 track)
+    public void Compress(string tocDir, string source, Track track)
     {
-        var destinationFileName = Path.Combine(converter.Output.Path, relativeOutDir,
-            track.Filename.OutName + "." + converter.Type.ToLower());
+        var destinationFileName = Path.Combine(converter.Output.Path, 
+            track.Files.Compressed + "." + converter.Type.ToLower());
         if (File.Exists(destinationFileName)) return;
 
         MakeDestinationFolder(destinationFileName);
         Compress(source, destinationFileName);
-        WriteAudioTags(directory, destinationFileName, track);
+        AudioTagWriter.WriteTags(tocDir, destinationFileName, track);
     }
 
     /// <summary>
@@ -31,31 +32,6 @@ public class FileCompressor(Converter converter)
         {
             Directory.CreateDirectory(directory);
         }
-    }
-
-    /// <summary>
-    /// Write the compressed audio file's meta tags based on the <cref>TrackV2</cref>
-    /// information provided in the constructor.
-    /// </summary>
-    /// <param name="uncompressedSourceDir">The directory of the source file that also 
-    /// contains the cover art file.</param>
-    /// <param name="destinationFilename">The compressed audio filename.</param>
-    /// <param name="track">The audio file's meta data.</param>
-    private static void WriteAudioTags(string uncompressedSourceDir, string destinationFilename,
-        TrackV2 track)
-    {
-        var file = TagLib.File.Create(destinationFilename);
-
-        file.Tag.Album = track.Album;
-        file.Tag.Title = track.TrackTitle;
-        file.Tag.Track = Convert.ToUInt32(track.TrackNumber);
-        file.Tag.Year = Convert.ToUInt32(track.Year);
-        file.Tag.Genres = [track.Genre];
-        file.Tag.Performers = [track.Artist];
-        file.Tag.AlbumArtists = [track.IsCompilation ? CompilationArtist.Name : track.Artist];
-        file.Tag.Pictures = [new CoverArt(uncompressedSourceDir).FrontCover];
-
-        file.Save();
     }
 
     /// <summary>

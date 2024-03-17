@@ -25,9 +25,20 @@ public class CharacterReplacement
     /// with the unencoded <cref>Character</cref>.
     /// </summary>
     /// <param name="value">The value in which to replace the HTML-encoded character.</param>
-    /// <returns>A copy of the value with any HTML-encoded character replaced.</returns>
+    /// <returns>A copy of the value with any configured HTML-encoded character replaced.</returns>
     public string ReplaceCode(string value)
     {
         return value.Replace(Replacement, Character);
+    }
+
+    /// <summary>
+    /// Replace all occurrences of the human-readable <cref>Character</cref> in the given string with 
+    /// the <cref>Replacement</cref>.
+    /// </summary>
+    /// <param name="value">The value in which to replace the human-readable character.</param>
+    /// <returns>A copy of the value with any configured human-readable character replaced.</returns>
+    public string InsertCode(string value)
+    {
+        return value.Replace(Character, Replacement);
     }
 }
