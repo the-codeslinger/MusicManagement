@@ -1,8 +1,6 @@
 ﻿using MusicManagementCore.Constant;
-using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
-using MusicManagementCore.Domain.ToC;
-using MusicManagementCore.Domain.ToC.V2;
+using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Event;
 using MusicManagementCore.Service;
 using MusicManagementCore.Util;
@@ -55,7 +53,7 @@ namespace UpdateTags
                     + "Use CreateToc.exe to upgrade.");
             }
 
-            var toc = TableOfContentsUtil.ReadFromFile<TableOfContents>(e.Filename);
+            var toc = TableOfContentsUtil.ReadFromFile<TableOfContentsV3>(e.Filename);
             var tocDir = Path.GetDirectoryName(e.Filename);
 
             var coverChanged = HasCoverChanged(toc, tocDir!);
@@ -74,7 +72,7 @@ namespace UpdateTags
             // Update toc with relative dir.
         }
 
-        private bool HandleTrack(string tocDir, string relativeOutDir, Track track,
+        private bool HandleTrack(string tocDir, string relativeOutDir, TrackV3 track,
             bool coverChanged)
         {
             if (!HasAnyMetaTagChanged(track) && !coverChanged) return false;
@@ -106,19 +104,19 @@ namespace UpdateTags
             return true;
         }
 
-        private static bool HasCoverChanged(TableOfContents toc, string directory)
+        private static bool HasCoverChanged(TableOfContentsV3 toc, string directory)
         {
-            var currentHash = TableOfContents.ComputeCoverArtHash(directory);
+            var currentHash = TableOfContentsV3.ComputeCoverArtHash(directory);
             return currentHash != toc.CoverHash;
         }
 
-        private static bool HasAnyMetaTagChanged(Track track)
+        private static bool HasAnyMetaTagChanged(TrackV3 track)
         {
             var currentHash = track.ComputeMetaHash();
             return currentHash != track.MetaHash;
         }
 
-        private string BuildDestinationFileName(Track track)
+        private string BuildDestinationFileName(TrackV3 track)
         {
             var fileName = new TrackFilePathBuilder(_config.OutputConfig.Format).Build(track);
             return Path.Combine(_converter.Output.Path, fileName + "." + _converter.Type.ToLower());

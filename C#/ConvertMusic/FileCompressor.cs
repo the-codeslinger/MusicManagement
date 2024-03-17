@@ -3,14 +3,14 @@ using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC;
-using MusicManagementCore.Domain.ToC.V2;
+using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Util;
 
 namespace ConvertMusic;
 
 public class FileCompressor(Converter converter)
 {
-    public void Compress(string tocDir, string source, Track track)
+    public void Compress(string tocDir, string source, TrackV3 track)
     {
         var destinationFileName = Path.Combine(converter.Output.Path, 
             track.Files.Compressed + "." + converter.Type.ToLower());

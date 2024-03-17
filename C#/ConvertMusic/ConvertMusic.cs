@@ -1,7 +1,6 @@
 ﻿using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.Config;
-using MusicManagementCore.Domain.ToC;
-using MusicManagementCore.Domain.ToC.V2;
+using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Event;
 using MusicManagementCore.Service;
 using MusicManagementCore.Util;
@@ -42,14 +41,16 @@ namespace ConvertMusic
         {
             var version = TableOfContentsUtil.ReadVersion(e.Filename);
             var toc = ToCVersion.V1 == version
-                ? TableOfContentsUtil.MigrateV1ToV2File(e.Filename, _config)
-                : TableOfContentsUtil.ReadFromFile<TableOfContents>(e.Filename);
+                ? TableOfContentsUtil.MigrateV1ToV3File(e.Filename, _config)
+                : ToCVersion.V2 == version
+                    ? TableOfContentsUtil.MigrateV2ToV3File(e.Filename, _config)
+                    : TableOfContentsUtil.ReadFromFile<TableOfContentsV3>(e.Filename);
 
             var sourceDir = Path.GetDirectoryName(e.Filename);
             toc.TrackList.ForEach(track => HandleTrack(sourceDir!, track));
         }
 
-        private void HandleTrack(string sourceDirectory, Track track)
+        private void HandleTrack(string sourceDirectory, TrackV3 track)
         {
             var source = Path.Combine(sourceDirectory, track.Files.Uncompressed);
             if (!File.Exists(source))

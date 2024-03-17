@@ -1,7 +1,7 @@
 ﻿using System;
 using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.Audio;
-using MusicManagementCore.Domain.ToC.V2;
+using MusicManagementCore.Domain.ToC.V3;
 using TagLib;
 
 namespace MusicManagementCore.Util;
@@ -16,7 +16,7 @@ public class AudioTagWriter
     /// file.</param>
     /// <param name="compressedFileName">The compressed audio absolute file name.</param>
     /// <param name="track">The audio file's meta data.</param>
-    public static void WriteTags(string tocDir, string compressedFileName, Track track)
+    public static void WriteTags(string tocDir, string compressedFileName, TrackV3 track)
     {
         var file = File.Create(compressedFileName);
 

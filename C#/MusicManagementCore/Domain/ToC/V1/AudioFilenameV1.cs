@@ -45,7 +45,7 @@ namespace MusicManagementCore.Domain.ToC.V1
         /// <summary>
         /// The final short filename after creating the \c ToC.json file.
         /// </summary>
-        [JsonPropertyName(JsonPropertyName.FilenameIn)]
+        [JsonPropertyName(JsonPropertyName.FilenameShort)]
         public string ShortName { get; set; }
     }
 }

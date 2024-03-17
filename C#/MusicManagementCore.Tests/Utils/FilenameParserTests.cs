@@ -1,4 +1,4 @@
-﻿using MusicManagementCore.Domain.ToC.V2;
+﻿using MusicManagementCore.Domain.ToC.V3;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -24,7 +24,7 @@ namespace MusicManagementCore.Tests.Utils
             "Title"
         };
 
-        private static readonly MetaData META_DATA_FULL = new() {
+        private static readonly MetaDataV3 META_DATA_FULL = new() {
             Artist = "Demons & Wizards",
             Album = "III",
             Genre = "Power Metal",
@@ -32,17 +32,17 @@ namespace MusicManagementCore.Tests.Utils
             TrackNumber = "01",
             Title = "Diabolic"
         };
-        private static readonly MetaData META_DATA_PARTIAL = new() {
+        private static readonly MetaDataV3 META_DATA_PARTIAL = new() {
             Artist = "Demons & Wizards",
             TrackNumber = "01",
             Title = "Diabolic"
         };
-        private static readonly MetaData META_DATA_FORMAT_MISMATCH_1 = new() {
+        private static readonly MetaDataV3 META_DATA_FORMAT_MISMATCH_1 = new() {
             Artist = "Demons & Wizards",
             TrackNumber = "III",
             Title = "Power Metal"
         };
-        private static readonly MetaData META_DATA_FORMAT_MISMATCH_2 = new() {
+        private static readonly MetaDataV3 META_DATA_FORMAT_MISMATCH_2 = new() {
             Artist = "Demons & Wizards",
             Album = "01",
             Genre = "Diabolic"
@@ -58,8 +58,8 @@ namespace MusicManagementCore.Tests.Utils
                 new object[] { FILENAME_FULL, TAG_FORMAT_PARTIAL, META_DATA_FORMAT_MISMATCH_1 },
                 new object[] { FILENAME_PARTIAL, TAG_FORMAT_FULL, META_DATA_FORMAT_MISMATCH_2 },
                 // Empty filename or format tags
-                new object[] { "", TAG_FORMAT_FULL, new MetaData() },
-                new object[] { FILENAME_FULL, new List<string>(), new MetaData() }
+                new object[] { "", TAG_FORMAT_FULL, new MetaDataV3() },
+                new object[] { FILENAME_FULL, new List<string>(), new MetaDataV3() }
             };
 
             public IEnumerator<object[]> GetEnumerator() => _data.GetEnumerator();

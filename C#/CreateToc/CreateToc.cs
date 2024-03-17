@@ -3,7 +3,7 @@ using MusicManagementCore.Converter;
 using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC.V1;
-using MusicManagementCore.Domain.ToC.V2;
+using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Event;
 using MusicManagementCore.Service;
 using MusicManagementCore.Util;
@@ -16,7 +16,7 @@ namespace CreateToc
 {
     internal class CreateToc
     {
-        private readonly Dictionary<string, List<MetaData>> _records = [];
+        private readonly Dictionary<string, List<MetaDataV3>> _records = [];
         private readonly MusicManagementConfig _config;
         private readonly MetaDataConverter _metaDataConverter;
 
@@ -50,31 +50,20 @@ namespace CreateToc
                 var version = TableOfContentsUtil.ReadVersion(tocFilename);
                 if (ToCVersion.V1 == version)
                 {
-                    TableOfContentsUtil.MigrateV1ToV2File(tocFilename, _config);
+                    TableOfContentsUtil.MigrateV1ToV3File(tocFilename, _config);
                     Console.WriteLine(
-                        $"'{e.Path}' V1 table of contents file migrated to V2.");
+                        $"'{e.Path}' V1 table of contents file migrated to V3.");
+                }
+                else if (ToCVersion.V2 == version)
+                {
+                    TableOfContentsUtil.MigrateV2ToV3File(tocFilename, _config);
+                    Console.WriteLine(
+                        $"'{e.Path}' V2 table of contents file migrated to V3.");
                 }
                 else
                 {
                     Console.WriteLine(
                             $"'{e.Path}' already contains a table of contents file.");
-
-                    /*
-                    var toc = TableOfContentsUtil.ReadFromFile<TableOfContents>(tocFilename);
-                    var coverHashUpdated = UpdateCoverHashIfMissing(e.Path, toc);
-                    var metaHashUpdated = UpdateMetaHashIfMissing(toc);
-
-                    if (coverHashUpdated || metaHashUpdated)
-                    {
-                        JsonWriter.WriteToDirectory(e.Path, toc);
-                        Console.WriteLine($"'{e.Path}' data hashes updated.");
-                    }
-                    else
-                    {
-                        Console.WriteLine(
-                            $"'{e.Path}' already contains a table of contents file.");
-                    }
-                    */
                 }
             }
         }
@@ -96,17 +85,12 @@ namespace CreateToc
             metas.Value.Add(ParseMetaData(e.UncompressedFile));
         }
 
-        private string ReplaceCodeStrings(string value)
-        {
-            return _config.FilenameEncodingConfig.ReplaceCodeStrings(value);
-        }
-
-        private MetaData ParseMetaData(UncompressedFile uncompressedFile)
+        private MetaDataV3 ParseMetaData(UncompressedFile uncompressedFile)
         {
             return _metaDataConverter.ToMetaData(uncompressedFile.Filename);
         }
 
-        private void FinalizeRecord(string directory, List<MetaData> metas)
+        private void FinalizeRecord(string directory, List<MetaDataV3> metas)
         {
             if (metas.Count == 0) return;
 
@@ -118,9 +102,9 @@ namespace CreateToc
                 string.Compare(t1.MetaData.TrackNumber, t2.MetaData.TrackNumber, StringComparison.Ordinal));
 
             var coverArt = CoverArt.OfDirectory(directory);
-            var toc = new TableOfContents
+            var toc = new TableOfContentsV3
             {
-                Version = ToCVersion.V2,
+                Version = ToCVersion.V3,
                 CoverHash = DataHasher.ComputeOfFile(coverArt.Path),
                 TrackList = tracks
             };
@@ -130,16 +114,16 @@ namespace CreateToc
             Console.WriteLine($"'{directory}' table of contents created");
         }
 
-        private Track TrackFromMetaData(MetaData metaData, bool isCompilation)
+        private TrackV3 TrackFromMetaData(MetaDataV3 metaData, bool isCompilation)
         {
-            var files = new Files
+            var files = new FilesV3
             {
                 Original = _metaDataConverter.ToOriginalFilename(metaData),
                 Uncompressed = _metaDataConverter.ToUncompressedFilename(metaData),
                 Compressed = _metaDataConverter.ToCompressedFilename(metaData, isCompilation)
             };
 
-            return new Track
+            return new TrackV3
             {
                 IsCompilation = isCompilation,
                 MetaData = metaData,
@@ -147,7 +131,7 @@ namespace CreateToc
             };
         }
 
-        private static void RenameFile(string directory, Track track)
+        private static void RenameFile(string directory, TrackV3 track)
         {
             File.Move(
                 Path.Combine(directory, track.Files.Original),

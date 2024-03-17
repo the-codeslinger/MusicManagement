@@ -2,7 +2,7 @@
   "profiles": {
     "CreateToc": {
       "commandName": "Project",
-      "commandLineArgs": "--config \"\"C:\\Users\\lober\\pCloud\\Code\\GitHub\\MusicManagement\\C#\\Config-Windows.json\"\""
+      "commandLineArgs": "--config \"\"C:\\Users\\lober\\OneDrive\\Code\\GitHub\\MusicManagement\\C#\\Config-Windows.json\"\""
     }
   }
 }

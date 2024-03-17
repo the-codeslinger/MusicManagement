@@ -2,7 +2,7 @@
   "profiles": {
     "ConvertMusic": {
       "commandName": "Project",
-      "commandLineArgs": "--config \"C:\\Users\\lober\\pCloud\\Code\\GitHub\\MusicManagement\\C#\\Config-Windows.json\" --format MP3"
+      "commandLineArgs": "--config \"C:\\Users\\lober\\OneDrive\\Code\\GitHub\\MusicManagement\\C#\\Config-Windows.json\" --format MP3"
     }
   }
 }

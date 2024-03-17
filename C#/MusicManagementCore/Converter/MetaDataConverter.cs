@@ -1,6 +1,6 @@
 ﻿using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.Config;
-using MusicManagementCore.Domain.ToC.V2;
+using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Util;
 using System;
 using System.IO;
@@ -24,18 +24,19 @@ public class MetaDataConverter(MusicManagementConfig config)
     /// <param name="filename">The audio file's filename, relative or absolute.</param>
     /// <returns>The meta data that was encoded in the filename. Data that was
     /// not listed in the input configuration will be treated as an empty string.</returns>
-    public MetaData ToMetaData(string filename)
+    public MetaDataV3 ToMetaData(string filename)
     {
         var encodingConfig = config.FilenameEncodingConfig;
 
         var name = Path.GetFileNameWithoutExtension(filename);
         var exploded = name.Split(encodingConfig.Delimiter);
 
-        var metaData = new MetaData();
+        var metaData = new MetaDataV3();
         foreach (var zipped in exploded.Zip(encodingConfig.TagFormat, Tuple.Create))
         {
             InsertData(zipped.Item1, zipped.Item2, metaData);
         }
+        metaData.Hash = GenerateHash(metaData);
 
         return metaData;
     }
@@ -46,9 +47,9 @@ public class MetaDataConverter(MusicManagementConfig config)
     /// </summary>
     /// <param name="metaData">Meta data with an outdated hash.</param>
     /// <returns>A copy of the input parameter but with an updated hash.</returns>
-    public MetaData ToMetaData(MetaData metaData)
+    public MetaDataV3 ToMetaData(MetaDataV3 metaData)
     {
-        return MetaData.Of(metaData, GenerateHash(metaData));
+        return MetaDataV3.Of(metaData, GenerateHash(metaData));
     }
 
     /// <summary>
@@ -58,7 +59,7 @@ public class MetaDataConverter(MusicManagementConfig config)
     /// <param name="metaData">The meta data of the audio file.</param>
     /// <returns>The filename of the original uncompressed filename with all meta data embedded and
     /// the configured input extension.</returns>
-    public string ToOriginalFilename(MetaData metaData)
+    public string ToOriginalFilename(MetaDataV3 metaData)
     {
         var encodingConfig = config.FilenameEncodingConfig;
 
@@ -81,7 +82,7 @@ public class MetaDataConverter(MusicManagementConfig config)
     /// <param name="metaData">The meta data of the audio file.</param>
     /// <returns>The predefined filename in the format "track# - track title" with the configured 
     /// extension.</returns>
-    public string ToUncompressedFilename(MetaData metaData)
+    public string ToUncompressedFilename(MetaDataV3 metaData)
     {
         return $"{metaData.TrackNumber} - {metaData.Title}.{config.InputConfig.Extension}";
     }
@@ -93,7 +94,7 @@ public class MetaDataConverter(MusicManagementConfig config)
     /// <param name="isCompilation">Whether the meta data is part of a compilation.</param>
     /// <returns>The relative filename of the compressed file based on the configured format and 
     /// without extension.</returns>
-    public string ToCompressedFilename(MetaData metaData, bool isCompilation)
+    public string ToCompressedFilename(MetaDataV3 metaData, bool isCompilation)
     {
         var format = config.OutputConfig.Format;
         return format
@@ -107,7 +108,7 @@ public class MetaDataConverter(MusicManagementConfig config)
             .Replace(MetaTagName.Title, FileSystemUtil.RemoveInvalidFileNameChars(metaData.Title));
     }
 
-    private string GenerateHash(MetaData metaData)
+    private string GenerateHash(MetaDataV3 metaData)
     {
         return GenerateHash(metaData.Artist, metaData.Album, metaData.Genre, metaData.Year, 
             metaData.TrackNumber, metaData.Title);
@@ -120,7 +121,7 @@ public class MetaDataConverter(MusicManagementConfig config)
         return DataHasher.ComputeOfString(hashSource);
     }
 
-    private void InsertData(string value, string tag, MetaData metaData)
+    private void InsertData(string value, string tag, MetaDataV3 metaData)
     {
         var encodingConfig = config.FilenameEncodingConfig;
         switch (tag)
@@ -155,7 +156,7 @@ public class MetaDataConverter(MusicManagementConfig config)
         }
     }
 
-    private string ExtractData(string tag, MetaData metaData)
+    private string ExtractData(string tag, MetaDataV3 metaData)
     {
         var encodingConfig = config.FilenameEncodingConfig;
         return tag switch

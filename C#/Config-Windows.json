@@ -5,10 +5,7 @@
         "Extension": "wav"
     },
     "Output": {
-        "Format": {
-            "Path": "Genre\\Artist\\Year - Album",
-            "File": "TrackNumber - Title"
-        },
+        "Format": "Genre\\Artist\\Year - Album\\TrackNumber - Title",
         "Converters": [
             {
                 "Type": "MP3",

@@ -1,13 +1,10 @@
-﻿using System;
+﻿using MusicManagementCore.Constant;
 using System.Collections.Generic;
-using System.IO;
-using System.Security.Cryptography;
 using System.Text.Json.Serialization;
-using MusicManagementCore.Constant;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
-namespace MusicManagementCore.Domain.ToC.V2;
+namespace MusicManagementCore.Domain.ToC.V3;
 
 /// <summary>
 /// Provides convenient accessors for a compilation table of contents JSON file.
@@ -17,7 +14,7 @@ namespace MusicManagementCore.Domain.ToC.V2;
 /// 
 /// <code>
 /// {
-///   "version": "2",
+///   "version": "3",
 ///   "cover-hash": "5455DA9A92AEA56AE5F65C9EF587412C356A18A25A9C1A95ED58A091BBBF9513",
 ///   "tracks": {
 ///     "compilation": false,
@@ -39,13 +36,13 @@ namespace MusicManagementCore.Domain.ToC.V2;
 /// }
 /// </code>
 /// </summary>
-public class TableOfContents
+public class TableOfContentsV3
 {
     /// <summary>
     /// The version of the ToC file format.
     /// </summary>
     [JsonPropertyName(JsonPropertyName.Version)]
-    public string Version { get; set; } = ToCVersion.V2;
+    public string Version { get; set; } = ToCVersion.V3;
 
     /// <summary>
     /// A hash of the record's cover art file. Used for determining changes to 
@@ -59,5 +56,5 @@ public class TableOfContents
     /// The list of audio files that have been ripped for the "album".
     /// </summary>
     [JsonPropertyName(JsonPropertyName.Tracks)]
-    public List<Track> TrackList { get; set; } = [];
+    public List<TrackV3> TrackList { get; set; } = [];
 }

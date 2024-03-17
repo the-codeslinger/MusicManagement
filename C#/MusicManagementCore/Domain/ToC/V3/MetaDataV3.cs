@@ -1,16 +1,13 @@
-﻿using System;
-using System.Security.Cryptography;
-using System.Text;
+﻿using MusicManagementCore.Constant;
 using System.Text.Json.Serialization;
-using MusicManagementCore.Constant;
 
-namespace MusicManagementCore.Domain.ToC.V2;
+namespace MusicManagementCore.Domain.ToC.V3;
 
 /// <summary>
 /// All meta data of an audio track. This data contains all umlauts or other special characters
 /// to represents the unmodified track data.
 /// </summary>
-public class MetaData
+public class MetaDataV3
 {
     /// <summary>
     /// The name of the track's artist. For example, this can be a single person 
@@ -56,9 +53,9 @@ public class MetaData
     [JsonPropertyName(JsonPropertyName.MetaDataHash)]
     public string Hash { get; set; }
 
-    public static MetaData Of(MetaData metaData, string hash)
+    public static MetaDataV3 Of(MetaDataV3 metaData, string hash)
     {
-        return new MetaData { Artist = metaData.Artist, Album = metaData.Album, 
+        return new MetaDataV3 { Artist = metaData.Artist, Album = metaData.Album, 
             Genre = metaData.Genre, Year = metaData.Year, TrackNumber = metaData.TrackNumber, 
             Title = metaData.Title, Hash = hash };
     }

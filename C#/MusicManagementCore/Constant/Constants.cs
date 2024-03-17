@@ -44,7 +44,7 @@ public static class JsonPropertyName
 
     public const string Filename = "filename";
     public const string FilenameLong = "long";
-    public const string FilenameIn = "in";
+    public const string FilenameShort = "short";
 }
 
 /// <summary>
@@ -63,6 +63,7 @@ public static class ToCVersion
 {
     public const string V1 = "1";
     public const string V2 = "2";
+    public const string V3 = "3";
 }
 
 /// <summary>
