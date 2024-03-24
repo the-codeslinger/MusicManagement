@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "UpdateTags": {
+      "commandName": "Project",
+      "commandLineArgs": "-c \"C:\\Users\\lober\\OneDrive\\Code\\GitHub\\MusicManagement\\C#\\Config-Windows.json\" -f mp3 -u \"E:\\Temp\\In\""
+    }
+  }
+}

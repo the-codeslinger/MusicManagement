@@ -1,4 +1,6 @@
 ﻿using MusicManagementCore.Constant;
+using MusicManagementCore.Converter;
+using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Event;
@@ -15,9 +17,9 @@ namespace UpdateTags
     class UpdateTags
     {
         private readonly MusicManagementConfig _config;
+        private readonly MetaDataConverter _metaConverter;
         private readonly Converter _converter;
         private readonly string _uncompressedDir;
-        private readonly string _compressedDir;
 
         public UpdateTags(Options options)
         {
@@ -31,7 +33,8 @@ namespace UpdateTags
                          throw new ArgumentException(
                              $"No converter format found for '{options.Format}'.");
             _uncompressedDir = options.Uncompressed;
-            _compressedDir = options.Compressed;
+
+            _metaConverter = new MetaDataConverter(_config);
         }
 
         public int Run()
@@ -56,30 +59,32 @@ namespace UpdateTags
             var toc = TableOfContentsUtil.ReadFromFile<TableOfContentsV3>(e.Filename);
             var tocDir = Path.GetDirectoryName(e.Filename);
 
-            var coverChanged = HasCoverChanged(toc, tocDir!);
-            var anyFileChanged = false;
-            toc.TrackList.ForEach(track =>
-                anyFileChanged |= HandleTrack(tocDir!, toc.RelativeOutDir, track, coverChanged));
+            var coverHash = ComputeCoverHash(toc, tocDir!);
+            var trackList = toc.TrackList
+                .Select(track => HandleTrack(tocDir!, track))
+                .Where(track => null != track)
+                .ToList();
 
-            if (!anyFileChanged && !coverChanged) return;
+            var newToc = new TableOfContentsV3
+            {
+                Version = ToCVersion.V3,
+                CoverHash = coverHash,
+                TrackList = trackList
+            };
+
+            // Compare new and old toc (custom Equals methods?).
 
             Console.WriteLine(
                 $"Writing updated hashes to table of contents '{e.Filename}'.");
-            JsonWriter.WriteToDirectory(tocDir, toc);
-
-            // Remove old relative dir(s) if empty.
-            // Update toc with cover hash.
-            // Update toc with relative dir.
+            JsonWriter.WriteToDirectory(tocDir, newToc);
         }
 
-        private bool HandleTrack(string tocDir, string relativeOutDir, TrackV3 track,
-            bool coverChanged)
+        private TrackV3? HandleTrack(string tocDir, TrackV3 track)
         {
-            if (!HasAnyMetaTagChanged(track) && !coverChanged) return false;
+            var updatedMetaData = _metaConverter.ToMetaData(track.MetaData);
+            if (!HasAnyMetaTagChanged(track.MetaData, updatedMetaData)) return track;
 
-            var currentCompressedFileName = Path.Combine(_converter.Output.Path, relativeOutDir,
-                track.Filename.OutName + "." + _converter.Type.ToLower());
-            var pathBuilder = new TrackFilePathBuilder(_config.OutputConfig.Format);
+            var currentCompressedFileName = CreateAbsoluteFileName(track.Files.Compressed);
 
             Console.WriteLine(
                 $"Changes detected in file's '{currentCompressedFileName}' meta tags or cover art.");
@@ -91,34 +96,84 @@ namespace UpdateTags
             }
 
             AudioTagWriter.WriteTags(tocDir, currentCompressedFileName, track);
-            track.UpdateMetaHash();
-            track.Filename.OutName = pathBuilder.BuildFile(track);
+            var updatedTrack = CreateUpdatedTrack(updatedMetaData, track.IsCompilation);
             
-            // Move to new relative dir.
-            var newRelativeOutDir = pathBuilder.BuildPath(track);
-            if (relativeOutDir != newRelativeOutDir)
+            MoveFileToNewDirectory(currentCompressedFileName, updatedTrack);
+
+            return updatedTrack;
+        }
+
+        private void MoveFileToNewDirectory(string sourceFile, TrackV3 updatedTrack)
+        {
+            var newCompressedFileName = CreateAbsoluteFileName(updatedTrack.Files.Compressed);
+            var newOutputPath = Path.GetDirectoryName(newCompressedFileName);
+            var oldOutputPath = Path.GetDirectoryName(sourceFile);
+
+            if (newOutputPath == oldOutputPath)
             {
-                Console.WriteLine($"Move track to new folder {newRelativeOutDir}");
+                return;
             }
 
-            return true;
+            if (null == newOutputPath)
+            {
+                Console.WriteLine($"Cannot create new output directory as there is none in new filename "
+                    + "'{newCompressedFileName}'");
+                return;
+            }
+
+            _ = Directory.CreateDirectory(newOutputPath);
+            File.Move(sourceFile, newCompressedFileName);
+
+            DeleteRecursiveIfEmpty(oldOutputPath!);
         }
 
-        private static bool HasCoverChanged(TableOfContentsV3 toc, string directory)
+        private static void DeleteRecursiveIfEmpty(string path)
         {
-            var currentHash = TableOfContentsV3.ComputeCoverArtHash(directory);
-            return currentHash != toc.CoverHash;
+            var files = Directory.EnumerateFileSystemEntries(path);
+            if (!files.Any())
+            {
+                Directory.Delete(path, false);
+
+                var parent = Directory.GetParent(path);
+                if (null != parent)
+                {
+                    DeleteRecursiveIfEmpty(parent.FullName);
+                }
+            }
+            else
+            {
+                return;
+            }
         }
 
-        private static bool HasAnyMetaTagChanged(TrackV3 track)
+        private static string ComputeCoverHash(TableOfContentsV3 toc, string directory)
         {
-            var currentHash = track.ComputeMetaHash();
-            return currentHash != track.MetaHash;
+            var coverArt = CoverArt.OfDirectory(directory);
+            return DataHasher.ComputeOfFile(coverArt.Path);
         }
 
-        private string BuildDestinationFileName(TrackV3 track)
+        private static bool HasAnyMetaTagChanged(MetaDataV3 current, MetaDataV3 updated)
         {
-            var fileName = new TrackFilePathBuilder(_config.OutputConfig.Format).Build(track);
+            return current.Hash != updated.Hash;
+        }
+
+        private TrackV3 CreateUpdatedTrack(MetaDataV3 metaData, bool isCompilation)
+        {
+            return new TrackV3
+            {
+                IsCompilation = isCompilation,
+                MetaData = metaData,
+                Files = new FilesV3
+                {
+                    Original = _metaConverter.ToOriginalFilename(metaData),
+                    Uncompressed = _metaConverter.ToUncompressedFilename(metaData),
+                    Compressed = _metaConverter.ToCompressedFilename(metaData, isCompilation)
+                }
+            };
+        }
+
+        private string CreateAbsoluteFileName(string fileName)
+        {
             return Path.Combine(_converter.Output.Path, fileName + "." + _converter.Type.ToLower());
         }
     }

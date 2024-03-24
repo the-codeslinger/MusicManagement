@@ -17,10 +17,5 @@ namespace UpdateTags
             HelpText =
                 "The source folder of uncompressed files. Must contain a table of contents file.")]
         public required string Uncompressed { get; set; }
-
-        [Option('o', "compressed",
-            HelpText =
-                "The folder of compressed files matching the format.")]
-        public required string Compressed { get; set; }
     }
 }
