@@ -1,8 +1,7 @@
-﻿using MusicManagementCore.Constant;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+using MusicManagementCore.Constant;
 
 namespace MusicManagementCore.Domain.ToC.V3;
 

@@ -1,11 +1,11 @@
-﻿using MusicManagementCore.Constant;
+﻿using System;
+using System.IO;
+using System.Linq;
+
+using MusicManagementCore.Constant;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Util;
-using System;
-using System.IO;
-using System.Linq;
-using TagLib.Matroska;
 
 namespace MusicManagementCore.Converter;
 
@@ -32,8 +32,7 @@ public class MetaDataConverter(MusicManagementConfig config)
         var exploded = name.Split(encodingConfig.Delimiter);
 
         var metaData = new MetaDataV3();
-        foreach (var zipped in exploded.Zip(encodingConfig.TagFormat, Tuple.Create))
-        {
+        foreach (var zipped in exploded.Zip(encodingConfig.TagFormat, Tuple.Create)) {
             InsertData(zipped.Item1, zipped.Item2, metaData);
         }
         metaData.Hash = GenerateHash(metaData);
@@ -64,11 +63,9 @@ public class MetaDataConverter(MusicManagementConfig config)
         var encodingConfig = config.FilenameEncodingConfig;
 
         var filename = "";
-        for (var c = 0; c < encodingConfig.TagFormat.Count; c++)
-        {
+        for (var c = 0; c < encodingConfig.TagFormat.Count; c++) {
             filename += ExtractData(encodingConfig.TagFormat[c], metaData);
-            if (c < encodingConfig.TagFormat.Count - 1)
-            {
+            if (c < encodingConfig.TagFormat.Count - 1) {
                 filename += encodingConfig.Delimiter;
             }
         }
@@ -110,7 +107,7 @@ public class MetaDataConverter(MusicManagementConfig config)
 
     private string GenerateHash(MetaDataV3 metaData)
     {
-        return GenerateHash(metaData.Artist, metaData.Album, metaData.Genre, metaData.Year, 
+        return GenerateHash(metaData.Artist, metaData.Album, metaData.Genre, metaData.Year,
             metaData.TrackNumber, metaData.Title);
     }
 
@@ -124,8 +121,7 @@ public class MetaDataConverter(MusicManagementConfig config)
     private void InsertData(string value, string tag, MetaDataV3 metaData)
     {
         var encodingConfig = config.FilenameEncodingConfig;
-        switch (tag)
-        {
+        switch (tag) {
             case MetaTagName.Artist:
                 metaData.Artist = encodingConfig.ReplaceCodeStrings(value);
                 break;
@@ -159,8 +155,7 @@ public class MetaDataConverter(MusicManagementConfig config)
     private string ExtractData(string tag, MetaDataV3 metaData)
     {
         var encodingConfig = config.FilenameEncodingConfig;
-        return tag switch
-        {
+        return tag switch {
             MetaTagName.Artist => encodingConfig.InsertCodeStrings(metaData.Artist),
             MetaTagName.Album => encodingConfig.InsertCodeStrings(metaData.Album),
             MetaTagName.Genre => encodingConfig.InsertCodeStrings(metaData.Genre),

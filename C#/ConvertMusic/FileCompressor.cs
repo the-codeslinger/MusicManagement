@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
+
 using MusicManagementCore.Constant;
-using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
-using MusicManagementCore.Domain.ToC;
 using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Util;
 
@@ -12,9 +11,11 @@ public class FileCompressor(Converter converter)
 {
     public void Compress(string tocDir, string source, TrackV3 track)
     {
-        var destinationFileName = Path.Combine(converter.Output.Path, 
+        var destinationFileName = Path.Combine(converter.Output.Path,
             track.Files.Compressed + "." + converter.Type.ToLower());
-        if (File.Exists(destinationFileName)) return;
+        if (File.Exists(destinationFileName)) {
+            return;
+        }
 
         MakeDestinationFolder(destinationFileName);
         Compress(source, destinationFileName);
@@ -28,8 +29,7 @@ public class FileCompressor(Converter converter)
     private static void MakeDestinationFolder(string destinationFilename)
     {
         var directory = Path.GetDirectoryName(destinationFilename);
-        if (null != directory && !Directory.Exists(directory))
-        {
+        if (null != directory && !Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
         }
     }
@@ -42,10 +42,8 @@ public class FileCompressor(Converter converter)
     /// <param name="destinationFilename">The compressed audio filename.</param>
     private void Compress(string uncompressedFilename, string destinationFilename)
     {
-        var args = converter.Command.Args.ConvertAll(arg =>
-        {
-            return arg switch
-            {
+        var args = converter.Command.Args.ConvertAll(arg => {
+            return arg switch {
                 ConverterArgs.Input => uncompressedFilename,
                 ConverterArgs.Output => destinationFilename,
                 _ => arg

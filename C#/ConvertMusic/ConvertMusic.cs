@@ -10,7 +10,6 @@ namespace ConvertMusic
     internal class ConvertMusic
     {
         private readonly FileCompressor _compressor;
-        private readonly MusicMgmtFileFinder _fileFinder;
         private readonly MusicManagementConfig _config;
 
         public ConvertMusic(Options options)
@@ -20,20 +19,19 @@ namespace ConvertMusic
             var converter = _config.OutputConfig.Converters.Find(
                 conv => string.Equals(conv.Type, options.Format,
                     StringComparison.CurrentCultureIgnoreCase));
-            if (null == converter)
-            {
+            if (null == converter) {
                 throw new ArgumentException(
                     $"No converter format found for '{options.Format}'.");
             }
 
             _compressor = new FileCompressor(converter);
-            _fileFinder = new MusicMgmtFileFinder(_config.InputConfig);
         }
 
         public int Run()
         {
-            _fileFinder.FoundTableOfContentsFile += FoundTableOfContentsFile;
-            _fileFinder.Scan();
+            var fileFinder = new MusicMgmtFileFinder(_config.InputConfig);
+            fileFinder.FoundTableOfContentsFile += FoundTableOfContentsFile;
+            fileFinder.Scan();
             return 0;
         }
 
@@ -53,8 +51,7 @@ namespace ConvertMusic
         private void HandleTrack(string sourceDirectory, TrackV3 track)
         {
             var source = Path.Combine(sourceDirectory, track.Files.Uncompressed);
-            if (!File.Exists(source))
-            {
+            if (!File.Exists(source)) {
                 throw new FileNotFoundException($"Audio file '{source}' does not exist.");
             }
 

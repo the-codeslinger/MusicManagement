@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+
 using MusicManagementCore.Constant;
 using MusicManagementCore.Converter;
-using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
 using MusicManagementCore.Domain.ToC.V1;
 using MusicManagementCore.Domain.ToC.V2;
@@ -30,13 +29,10 @@ public static class TableOfContentsUtil
         using var stream = new FileStream(filename, FileMode.Open, FileAccess.Read);
         using var json = JsonDocument.Parse(stream);
 
-        try
-        {
+        try {
             var versionElement = json.RootElement.GetProperty(JsonPropertyName.Version);
             return versionElement.GetString() ?? ToCVersion.V1;
-        }
-        catch (KeyNotFoundException)
-        {
+        } catch (KeyNotFoundException) {
             // If "version" does not exist, we have a V1 at our hands.
             return ToCVersion.V1;
         }
@@ -58,8 +54,7 @@ public static class TableOfContentsUtil
         using var json = JsonDocument.Parse(stream);
 
         var toc = json.RootElement.Deserialize<T>();
-        if (null == toc)
-        {
+        if (null == toc) {
             throw new InvalidDataException(
                 $"File '{filename}' is not a valid table of contents.");
         }

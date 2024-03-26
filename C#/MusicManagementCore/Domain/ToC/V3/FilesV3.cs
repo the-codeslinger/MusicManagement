@@ -1,5 +1,6 @@
-﻿using MusicManagementCore.Constant;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+
+using MusicManagementCore.Constant;
 
 namespace MusicManagementCore.Domain.ToC.V3;
 

@@ -1,8 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-using MusicManagementCore.Constant;
 
-// ReSharper disable PropertyCanBeMadeInitOnly.Global
-// ReSharper disable MemberCanBePrivate.Global
+using MusicManagementCore.Constant;
 
 namespace MusicManagementCore.Domain.ToC.V3;
 

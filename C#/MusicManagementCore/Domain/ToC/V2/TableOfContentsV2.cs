@@ -1,7 +1,7 @@
-﻿using MusicManagementCore.Constant;
-using MusicManagementCore.Domain.ToC.V1;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
+
+using MusicManagementCore.Constant;
 
 namespace MusicManagementCore.Domain.ToC.V2;
 

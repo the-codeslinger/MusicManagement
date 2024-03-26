@@ -24,6 +24,7 @@ namespace UpdateTags
         public UpdateTags(Options options)
         {
             _config = new MusicManagementConfig(options.Config);
+            _metaConverter = new MetaDataConverter(_config);
 
             var converter = _config.OutputConfig.Converters.Find(
                 conv => string.Equals(conv.Type, options.Format,
@@ -33,8 +34,6 @@ namespace UpdateTags
                          throw new ArgumentException(
                              $"No converter format found for '{options.Format}'.");
             _uncompressedDir = options.Uncompressed;
-
-            _metaConverter = new MetaDataConverter(_config);
         }
 
         public int Run()
@@ -49,10 +48,9 @@ namespace UpdateTags
         private void FoundTableOfContentsFile(object _, TableOfContentsFileEvent e)
         {
             var version = TableOfContentsUtil.ReadVersion(e.Filename);
-            if (ToCVersion.V1 == version)
-            {
+            if (ToCVersion.V3 != version) {
                 throw new InvalidDataException(
-                    $"File '{e.Filename}' is a v1 file that is not supported. "
+                    $"File '{e.Filename}' is not a supported v3 formatted file. "
                     + "Use CreateToc.exe to upgrade.");
             }
 
@@ -62,11 +60,9 @@ namespace UpdateTags
             var coverHash = ComputeCoverHash(toc, tocDir!);
             var trackList = toc.TrackList
                 .Select(track => HandleTrack(tocDir!, track))
-                .Where(track => null != track)
                 .ToList();
 
-            var newToc = new TableOfContentsV3
-            {
+            var newToc = new TableOfContentsV3 {
                 Version = ToCVersion.V3,
                 CoverHash = coverHash,
                 TrackList = trackList
@@ -79,25 +75,25 @@ namespace UpdateTags
             JsonWriter.WriteToDirectory(tocDir, newToc);
         }
 
-        private TrackV3? HandleTrack(string tocDir, TrackV3 track)
+        private TrackV3 HandleTrack(string tocDir, TrackV3 track)
         {
             var updatedMetaData = _metaConverter.ToMetaData(track.MetaData);
-            if (!HasAnyMetaTagChanged(track.MetaData, updatedMetaData)) return track;
+            if (!HasAnyMetaTagChanged(track.MetaData, updatedMetaData)) {
+                return track;
+            }
 
             var currentCompressedFileName = CreateAbsoluteFileName(track.Files.Compressed);
-
-            Console.WriteLine(
-                $"Changes detected in file's '{currentCompressedFileName}' meta tags or cover art.");
-
-            if (!File.Exists(currentCompressedFileName))
-            {
+            if (!File.Exists(currentCompressedFileName)) {
                 throw new FileNotFoundException(
                     $"{_converter.Type} audio file '{currentCompressedFileName}' does not exist.");
             }
 
+            Console.WriteLine(
+                $"Changes detected in file's '{currentCompressedFileName}' meta tags or cover art.");
+
             AudioTagWriter.WriteTags(tocDir, currentCompressedFileName, track);
             var updatedTrack = CreateUpdatedTrack(updatedMetaData, track.IsCompilation);
-            
+
             MoveFileToNewDirectory(currentCompressedFileName, updatedTrack);
 
             return updatedTrack;
@@ -109,13 +105,11 @@ namespace UpdateTags
             var newOutputPath = Path.GetDirectoryName(newCompressedFileName);
             var oldOutputPath = Path.GetDirectoryName(sourceFile);
 
-            if (newOutputPath == oldOutputPath)
-            {
+            if (newOutputPath == oldOutputPath) {
                 return;
             }
 
-            if (null == newOutputPath)
-            {
+            if (null == newOutputPath) {
                 Console.WriteLine($"Cannot create new output directory as there is none in new filename "
                     + "'{newCompressedFileName}'");
                 return;
@@ -130,18 +124,14 @@ namespace UpdateTags
         private static void DeleteRecursiveIfEmpty(string path)
         {
             var files = Directory.EnumerateFileSystemEntries(path);
-            if (!files.Any())
-            {
+            if (!files.Any()) {
                 Directory.Delete(path, false);
 
                 var parent = Directory.GetParent(path);
-                if (null != parent)
-                {
+                if (null != parent) {
                     DeleteRecursiveIfEmpty(parent.FullName);
                 }
-            }
-            else
-            {
+            } else {
                 return;
             }
         }
@@ -159,12 +149,10 @@ namespace UpdateTags
 
         private TrackV3 CreateUpdatedTrack(MetaDataV3 metaData, bool isCompilation)
         {
-            return new TrackV3
-            {
+            return new TrackV3 {
                 IsCompilation = isCompilation,
                 MetaData = metaData,
-                Files = new FilesV3
-                {
+                Files = new FilesV3 {
                     Original = _metaConverter.ToOriginalFilename(metaData),
                     Uncompressed = _metaConverter.ToUncompressedFilename(metaData),
                     Compressed = _metaConverter.ToCompressedFilename(metaData, isCompilation)

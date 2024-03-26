@@ -1,5 +1,6 @@
-﻿using MusicManagementCore.Constant;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+
+using MusicManagementCore.Constant;
 
 namespace MusicManagementCore.Domain.ToC.V3;
 
@@ -55,9 +56,15 @@ public class MetaDataV3
 
     public static MetaDataV3 Of(MetaDataV3 metaData, string hash)
     {
-        return new MetaDataV3 { Artist = metaData.Artist, Album = metaData.Album, 
-            Genre = metaData.Genre, Year = metaData.Year, TrackNumber = metaData.TrackNumber, 
-            Title = metaData.Title, Hash = hash };
+        return new MetaDataV3 {
+            Artist = metaData.Artist,
+            Album = metaData.Album,
+            Genre = metaData.Genre,
+            Year = metaData.Year,
+            TrackNumber = metaData.TrackNumber,
+            Title = metaData.Title,
+            Hash = hash
+        };
     }
 
     public override string ToString()

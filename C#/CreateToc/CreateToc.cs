@@ -1,4 +1,9 @@
-﻿using MusicManagementCore.Constant;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+using MusicManagementCore.Constant;
 using MusicManagementCore.Converter;
 using MusicManagementCore.Domain.Audio;
 using MusicManagementCore.Domain.Config;
@@ -7,10 +12,6 @@ using MusicManagementCore.Domain.ToC.V3;
 using MusicManagementCore.Event;
 using MusicManagementCore.Service;
 using MusicManagementCore.Util;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace CreateToc
 {
@@ -23,7 +24,6 @@ namespace CreateToc
         public CreateToc(Options options)
         {
             _config = new MusicManagementConfig(options.Config);
-            //_trackFileBuilder = new TrackFilePathBuilder(_config.OutputConfig.Format);
             _metaDataConverter = new MetaDataConverter(_config);
         }
 
@@ -41,27 +41,19 @@ namespace CreateToc
         private void EnterDirectory(object _, DirectoryEvent e)
         {
             var tocFilename = Path.Combine(e.Path, StandardFilename.TableOfContents);
-            if (!File.Exists(tocFilename))
-            {
+            if (!File.Exists(tocFilename)) {
                 _records.Add(e.Path, []);
-            }
-            else
-            {
+            } else {
                 var version = TableOfContentsUtil.ReadVersion(tocFilename);
-                if (ToCVersion.V1 == version)
-                {
+                if (ToCVersion.V1 == version) {
                     TableOfContentsUtil.MigrateV1ToV3File(tocFilename, _config);
                     Console.WriteLine(
                         $"'{e.Path}' V1 table of contents file migrated to V3.");
-                }
-                else if (ToCVersion.V2 == version)
-                {
+                } else if (ToCVersion.V2 == version) {
                     TableOfContentsUtil.MigrateV2ToV3File(tocFilename, _config);
                     Console.WriteLine(
                         $"'{e.Path}' V2 table of contents file migrated to V3.");
-                }
-                else
-                {
+                } else {
                     Console.WriteLine(
                             $"'{e.Path}' already contains a table of contents file.");
                 }
@@ -70,7 +62,9 @@ namespace CreateToc
 
         private void LeaveDirectory(object _, DirectoryEvent e)
         {
-            if (!_records.ContainsKey(e.Path)) return;
+            if (!_records.ContainsKey(e.Path)) {
+                return;
+            }
 
             var metas = _records.First(item => item.Key == e.Path);
             FinalizeRecord(e.Path, metas.Value);
@@ -79,7 +73,9 @@ namespace CreateToc
 
         private void FoundAudioFile(object _, AudioFileEvent e)
         {
-            if (!_records.ContainsKey(e.UncompressedFile.Directory)) return;
+            if (!_records.ContainsKey(e.UncompressedFile.Directory)) {
+                return;
+            }
 
             var metas = _records.First(item => item.Key == e.UncompressedFile.Directory);
             metas.Value.Add(ParseMetaData(e.UncompressedFile));
@@ -92,7 +88,9 @@ namespace CreateToc
 
         private void FinalizeRecord(string directory, List<MetaDataV3> metas)
         {
-            if (metas.Count == 0) return;
+            if (metas.Count == 0) {
+                return;
+            }
 
             var distinctArtists = metas.DistinctBy(track => track.Artist);
             var isCompilation = distinctArtists.Count() > 1;
@@ -102,8 +100,7 @@ namespace CreateToc
                 string.Compare(t1.MetaData.TrackNumber, t2.MetaData.TrackNumber, StringComparison.Ordinal));
 
             var coverArt = CoverArt.OfDirectory(directory);
-            var toc = new TableOfContentsV3
-            {
+            var toc = new TableOfContentsV3 {
                 Version = ToCVersion.V3,
                 CoverHash = DataHasher.ComputeOfFile(coverArt.Path),
                 TrackList = tracks
@@ -116,15 +113,13 @@ namespace CreateToc
 
         private TrackV3 TrackFromMetaData(MetaDataV3 metaData, bool isCompilation)
         {
-            var files = new FilesV3
-            {
+            var files = new FilesV3 {
                 Original = _metaDataConverter.ToOriginalFilename(metaData),
                 Uncompressed = _metaDataConverter.ToUncompressedFilename(metaData),
                 Compressed = _metaDataConverter.ToCompressedFilename(metaData, isCompilation)
             };
 
-            return new TrackV3
-            {
+            return new TrackV3 {
                 IsCompilation = isCompilation,
                 MetaData = metaData,
                 Files = files
