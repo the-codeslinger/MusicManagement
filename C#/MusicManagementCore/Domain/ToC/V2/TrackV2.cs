@@ -5,18 +5,20 @@ using MusicManagementCore.Domain.ToC.V1;
 
 namespace MusicManagementCore.Domain.ToC.V2;
 
+/// <summary>
+/// Version 2 was an intermediate format during the development of the C# version of the Music 
+/// Management tools.
+/// </summary>
 public class TrackV2
 {
     /// <summary>
-    /// Defines whether the track is part of a compilation ("true") or an artist's album
-    /// ("false).
+    /// Defines whether the track is part of a compilation ("true") or an artist's album ("false).
     /// </summary>
     [JsonPropertyName(JsonPropertyName.Compilation)]
     public bool IsCompilation { get; set; }
 
     /// <summary>
-    /// The name of the track's artist. For example, this can be a single person 
-    /// or a band.
+    /// The name of the track's artist. For example, this can be a single person or a band.
     /// </summary>
     [JsonPropertyName(JsonPropertyName.Artist)]
     public string Artist { get; set; }
@@ -52,8 +54,8 @@ public class TrackV2
     public string Title { get; set; }
 
     /// <summary>
-    /// The filenames the audio file is known as.
+    /// The file names the audio file is known as.
     /// </summary>
-    [JsonPropertyName(JsonPropertyName.Filename)]
-    public AudioFilenameV1 FilenameV1 { get; set; }
+    [JsonPropertyName(JsonPropertyName.FileName)]
+    public AudioFileNameV1 FileNameV1 { get; set; }
 }

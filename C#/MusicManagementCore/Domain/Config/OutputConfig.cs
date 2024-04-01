@@ -5,8 +5,7 @@ namespace MusicManagementCore.Domain.Config;
 /// <summary>
 /// Contains the configuration for scanning a source directory for audio files.
 /// 
-/// The following code shows the expected format. It can be a separate JSON object
-/// or part of a bigger JSON object.
+/// The following code shows the expected format.
 /// 
 /// <code>
 /// {
@@ -29,38 +28,37 @@ namespace MusicManagementCore.Domain.Config;
 public class OutputConfig
 {
     /// <summary>
-    /// Describes the output format that shall be created when writing a compressed
-    /// audio file. This can be a folder structure or just a filename. An extension
-    /// must not be added. This is determined by the compressor type.
+    /// Describes the output format that shall be created when writing a compressed audio file. 
+    /// This can be a folder structure or just a file name. An extension must not be added. This is 
+    /// determined by the compressor type.
     /// 
-    /// It is assumed that the output format shall always be the same for any 
-    /// type of converter.
+    /// It is assumed that the output format shall always be the same for any type of converter.
     /// </summary>
     public string Format { get; set; }
 
     /// <summary>
-    /// A list of all the configured converters to encode audio files from one
-    /// format to another.
+    /// A list of all the configured converters to encode audio files from the source to another 
+    /// format.
     /// </summary>
     public List<Converter> Converters { get; set; }
 }
 
 /// <summary>
-/// Configures a command line application with which the source files shall be
-/// converted to another format.
+/// Configures a command line application with which the source files shall be converted to another 
+/// format.
 /// 
-/// The configuration contains a type, the destination folder, and the command
-/// line utility including the parameters with which it shall be called.
+/// The configuration contains a type, the destination folder, and the command line utility 
+/// including the parameters with which it shall be called.
 /// 
 /// The following to replacement value are supported:
 /// <list type="bullet">
 /// <item>
 ///     <term>%input%</term>
-///     <description>Abolute filename of the file that shall be converted.</description>
+///     <description>Abolute file name of the file that shall be converted.</description>
 /// </item>
 /// <item>
 ///     <term>%output%</term>
-///     <description>Abolute filename of the resulting converted file.</description>
+///     <description>Abolute file name of the resulting converted file.</description>
 /// </item>
 /// </list>
 /// </summary>
@@ -72,8 +70,7 @@ public class Converter
     public string Type { get; set; }
 
     /// <summary>
-    /// Defines the output configuration, e.g., the destination path where files
-    /// shall be written.
+    /// Defines the output configuration, e.g., the destination path where files shall be written.
     /// </summary>
     public Output Output { get; set; }
 
@@ -84,15 +81,14 @@ public class Converter
 }
 
 /// <summary>
-/// Defines the output configuration, e.g., the destination path where files
-/// shall be written.
+/// Defines the output configuration, e.g., the destination path where files shall be written.
 /// </summary>
 public class Output
 {
     /// <summary>
-    /// The output directory into which the converted audio files shall be written.
-    /// If the output format describes a folder hierarchy, this is the root from
-    /// which this hierarchy will be created.
+    /// The output directory into which the converted audio files shall be written. If the output 
+    /// format describes a folder hierarchy, this is the root from which this hierarchy will be 
+    /// created.
     /// </summary>
     public string Path { get; set; }
 }
@@ -100,14 +96,14 @@ public class Output
 /// <summary>
 /// Describes the converter command line application and how to invoke it.
 /// 
-/// This includes the name of the application, relative or absolute path, and
-/// the command line arguments.
+/// This includes the name of the application, relative or absolute path, and the command line 
+/// arguments.
 /// </summary>
 public class Command
 {
     /// <summary>
-    /// An ordered list of the command line arguments that will be passed to
-    /// the converter executable.
+    /// An ordered list of the command line arguments that will be passed to the converter 
+    /// executable.
     /// </summary>
     public List<string> Args { get; set; }
 

@@ -13,29 +13,28 @@ namespace MusicManagementCore.Util;
 public static class JsonWriter
 {
     /// <summary>
-    /// Write the given table of contents to the given directory using the standard filename
-    /// defined in <cref>StandardFilename.TableOfContents</cref>.
+    /// Write the given table of contents to the given directory using the standard file name
+    /// defined in <cref>StandardFileName.TableOfContents</cref>.
     /// </summary>
-    /// <param name="directory">The destination directory to write the table of contents 
-    /// file to.</param>
+    /// <param name="directory">The destination directory to write the table of contents file to.</param>
     /// <param name="toc">The table of contents to write.</param>
     public static void WriteToDirectory(string directory, TableOfContentsV3 toc)
     {
-        WriteToFilename(Path.Combine(directory, StandardFilename.TableOfContents), toc);
+        WriteToFileName(Path.Combine(directory, StandardFileName.TableOfContents), toc);
     }
 
     /// <summary>
     /// Write the given table of contents to the given file.
     /// </summary>
-    /// <param name="filename">The filename of the table of contents file to write.</param>
+    /// <param name="fileName">The file name of the table of contents file to write.</param>
     /// <param name="toc">The table of contents to write.</param>
-    public static void WriteToFilename(string filename, TableOfContentsV3 toc)
+    public static void WriteToFileName(string fileName, TableOfContentsV3 toc)
     {
         var options = new JsonSerializerOptions {
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true
         };
         var jsonString = JsonSerializer.Serialize(toc, options);
-        File.WriteAllText(filename, jsonString);
+        File.WriteAllText(fileName, jsonString);
     }
 }

@@ -5,14 +5,13 @@ using MusicManagementCore.Constant;
 namespace MusicManagementCore.Domain.ToC.V3;
 
 /// <summary>
-/// All meta data of an audio track. This data contains all umlauts or other special characters
-/// to represents the unmodified track data.
+/// All meta data of an audio track. This data contains all umlauts or other special characters to 
+/// represent the unmodified track data.
 /// </summary>
 public class MetaDataV3
 {
     /// <summary>
-    /// The name of the track's artist. For example, this can be a single person 
-    /// or a band.
+    /// The name of the track's artist. For example, this can be a single person or a band.
     /// </summary>
     [JsonPropertyName(JsonPropertyName.Artist)]
     public string Artist { get; set; }
@@ -48,8 +47,8 @@ public class MetaDataV3
     public string Title { get; set; }
 
     /// <summary>
-    /// A hash of the audio file's meta information. Used for determining changes to 
-    /// support selective update of a single file's tags.
+    /// A hash of the audio file's meta information. Used for determining changes to support 
+    /// selective update of a single file's tags.
     /// </summary>
     [JsonPropertyName(JsonPropertyName.MetaDataHash)]
     public string Hash { get; set; }

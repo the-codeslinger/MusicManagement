@@ -6,5 +6,5 @@
 /// </summary>
 public class TableOfContentsFileEvent
 {
-    public string Filename { get; init; }
+    public string FileName { get; init; }
 }

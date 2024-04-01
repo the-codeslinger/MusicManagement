@@ -6,10 +6,9 @@ using MusicManagementCore.Constant;
 namespace MusicManagementCore.Domain.ToC.V3;
 
 /// <summary>
-/// Provides convenient accessors for a compilation table of contents JSON file.
+/// Version 3 of the table of contents file.
 /// 
-/// The <c>ToC.json</c> file has the following format. Lowercase naming is used for
-/// consistency with existing album ToC JSON files.
+/// The <c>ToC.json</c> file has the following format.
 /// 
 /// <code>
 /// {

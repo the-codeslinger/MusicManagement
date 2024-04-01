@@ -5,14 +5,13 @@ using MusicManagementCore.Constant;
 namespace MusicManagementCore.Domain.ToC.V1;
 
 /// <summary>
-/// An <cref>AlbumTrack</cref> object that represents a single uncompressed audio 
-/// file. 
+/// An <cref>AlbumTrack</cref> object that represents a single uncompressed audio file. 
 /// 
-/// This format was used in the Python scripts and is retained for backward 
-/// compatibility with existing archives.
+/// This format was used in the Python scripts and is retained for backward compatibility with 
+/// existing archives.
 /// 
-/// An <cref>AlbumTrack</cref> contains an audio file's title and number metadata and 
-/// its long and short filenames.
+/// An <cref>AlbumTrack</cref> contains an audio file's title and number metadata and its long and 
+/// short file names.
 /// </summary>
 public class TrackV1
 {
@@ -29,8 +28,8 @@ public class TrackV1
     public string Title { get; set; }
 
     /// <summary>
-    /// The filenames the audio file is known as.
+    /// The file names the audio file is known as.
     /// </summary>
-    [JsonPropertyName(JsonPropertyName.Filename)]
-    public AudioFilenameV1 FilenameV1 { get; set; }
+    [JsonPropertyName(JsonPropertyName.FileName)]
+    public AudioFileNameV1 FileNameV1 { get; set; }
 }

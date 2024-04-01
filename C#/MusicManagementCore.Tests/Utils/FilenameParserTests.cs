@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MusicManagementCore.Tests.Utils
 {
-    public class FilenameParserTests
+    public class FileNameParserTests
     {
         private const string FILENAME_FULL = "Demons & Wizards#III#Power Metal#2020#01#Diabolic.wav";
         private const string FILENAME_PARTIAL = "Demons & Wizards#01#Diabolic.wav";
@@ -54,10 +54,10 @@ namespace MusicManagementCore.Tests.Utils
                 // Regularly matching case
                 new object[] { FILENAME_FULL, TAG_FORMAT_FULL, META_DATA_FULL },
                 new object[] { FILENAME_PARTIAL, TAG_FORMAT_PARTIAL, META_DATA_PARTIAL },
-                // Asymmetric filename tags or format tags
+                // Asymmetric file name tags or format tags
                 new object[] { FILENAME_FULL, TAG_FORMAT_PARTIAL, META_DATA_FORMAT_MISMATCH_1 },
                 new object[] { FILENAME_PARTIAL, TAG_FORMAT_FULL, META_DATA_FORMAT_MISMATCH_2 },
-                // Empty filename or format tags
+                // Empty file name or format tags
                 new object[] { "", TAG_FORMAT_FULL, new MetaDataV3() },
                 new object[] { FILENAME_FULL, new List<string>(), new MetaDataV3() }
             };
@@ -69,18 +69,18 @@ namespace MusicManagementCore.Tests.Utils
         /*
         [Theory]
         [ClassData(typeof(DataGenerator))]
-        public void ParseMetaDataFromFilename(
-            string filename, List<string> tagFormat, MetaData expectedMetaData)
+        public void ParseMetaDataFromFileName(
+            string fileName, List<string> tagFormat, MetaData expectedMetaData)
         {
             // Given / Arrange
-            var inputConfig = new FilenameEncodingConfig {
+            var inputConfig = new FileNameEncodingConfig {
                 Delimiter = DELIMITER,
                 TagFormat = tagFormat
             };
-            var parser = new FilenameParser(inputConfig);
+            var parser = new FileNameParser(inputConfig);
 
             // When / Act
-            var metaData = parser.ParseMetaData(filename);
+            var metaData = parser.ParseMetaData(fileName);
 
             // Then / Assert
             Assert.Equal(expectedMetaData, metaData);

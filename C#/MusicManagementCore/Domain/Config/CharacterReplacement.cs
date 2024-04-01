@@ -1,12 +1,11 @@
 ﻿namespace MusicManagementCore.Domain.Config;
 
 /// <summary>
-/// Contains a list of characters and their replacement code for use in file and
-/// folder names.
+/// Contains a list of characters and their replacement code for use in file and folder names.
 /// 
-/// NTFS and other filesystems do not allow a certain number of characters. Such
-/// characters are replaced by HTML codes when audio files are initially read
-/// from disc and the most important meta data is encoded in the file's name.
+/// NTFS and other filesystems do not allow a certain number of characters. Such characters are 
+/// replaced by HTML codes when audio files are initially read from disc, and the most important 
+/// meta data is encoded in the file's name.
 /// </summary>
 public class CharacterReplacement
 {
@@ -16,7 +15,7 @@ public class CharacterReplacement
     public string Character { get; set; }
 
     /// <summary>
-    /// The HTML code used to encode the character.
+    /// The HTML code used to encode the character, e.g., "&35;", "&63;", and more.
     /// </summary>
     public string Replacement { get; set; }
 

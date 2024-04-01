@@ -23,29 +23,28 @@ public class FileCompressor(Converter converter)
     }
 
     /// <summary>
-    /// Create the complete folder hierarchy to store the compressed audio file based on
-    /// <cref>DestinationFilename</cref>.
+    /// Create the complete folder hierarchy to store the compressed audio file based.
     /// </summary>
-    private static void MakeDestinationFolder(string destinationFilename)
+    private static void MakeDestinationFolder(string destinationFileName)
     {
-        var directory = Path.GetDirectoryName(destinationFilename);
+        var directory = Path.GetDirectoryName(destinationFileName);
         if (null != directory && !Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
         }
     }
 
     /// <summary>
-    /// Compress the given audio file with the <cref>Converter</cref> provided in the 
-    /// constructor. The compressed file will be written to <cref>DestinationFilename</cref>.
+    /// Compress the given audio file with the <cref>Converter</cref> provided in the constructor. 
+    /// The compressed file will be written to <cref>destinationFileName</cref>.
     /// </summary>
-    /// <param name="uncompressedFilename">The uncompressed source audio file.</param>
-    /// <param name="destinationFilename">The compressed audio filename.</param>
-    private void Compress(string uncompressedFilename, string destinationFilename)
+    /// <param name="uncompressedFileName">The uncompressed source audio file.</param>
+    /// <param name="destinationFileName">The compressed audio file name.</param>
+    private void Compress(string uncompressedFileName, string destinationFileName)
     {
         var args = converter.Command.Args.ConvertAll(arg => {
             return arg switch {
-                ConverterArgs.Input => uncompressedFilename,
-                ConverterArgs.Output => destinationFilename,
+                ConverterArgs.Input => uncompressedFileName,
+                ConverterArgs.Output => destinationFileName,
                 _ => arg
             };
         });

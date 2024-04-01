@@ -10,9 +10,8 @@ using MusicManagementCore.Event;
 namespace MusicManagementCore.Service;
 
 /// <summary>
-/// Helper class to (recursively) iterate the contents of a directory to find files
-/// relevant to music management. This includes audio files to convert as well as
-/// table of contents JSON files.
+/// Helper class to (recursively) iterate the contents of a directory to find files relevant to 
+/// music management. This includes audio files to convert as well as table of contents JSON files.
 /// </summary>
 public class MusicMgmtFileFinder(InputConfig config)
 {
@@ -26,39 +25,36 @@ public class MusicMgmtFileFinder(InputConfig config)
         TableOfContentsFileEvent e);
 
     /// <summary>
-    /// Emitted when a new directory is scanned. Applies to recursive and 
-    /// non-recursive operations.
+    /// Emitted when a new directory is scanned. Applies to recursive and non-recursive operations.
     /// </summary>
     public event EnterDirectoryHandler EnterDirectory;
 
     /// <summary>
-    /// Emitted when scanning a directory completed. Applies to recursive and 
-    /// non-recursive operations.
+    /// Emitted when scanning a directory completed. Applies to recursive and non-recursive operations.
     /// </summary>
     public event LeaveDirectoryHandler LeaveDirectory;
 
     /// <summary>
-    /// Emitted when a file matching the configured extension 
-    /// <cref>InputConfig.Extension</cref> is found.
+    /// Emitted when a file matching the configured extension <cref>InputConfig.Extension</cref> is
+    /// found.
     /// </summary>
     public event FoundAudioFileHandler FoundAudioFile;
 
     /// <summary>
-    /// Emitted when a file <cref>StandardFilename.TableOfContents</cref> is found.
+    /// Emitted when a file <cref>StandardFileName.TableOfContents</cref> is found.
     /// </summary>
     public event FoundTableOfContentsFileHandler FoundTableOfContentsFile;
 
     /// <summary>
-    /// Scans the <cref>InputConfig.Path</cref> for files that match 
-    /// <cref>InputConfig.Extension</cref> or <cref>StandardFilename.TableOfContents</cref>.
+    /// Scans the <cref>InputConfig.Path</cref> for files that match <cref>InputConfig.Extension</cref> 
+    /// or <cref>StandardFileName.TableOfContents</cref>.
     /// </summary>
     /// <remarks>
-    /// For every audio file found, a <cref>FoundAudioFile</cref> event is emitted. 
-    /// For every table of contents file found, a <cref>FoundTableOfContentsFile</cref> 
-    /// event is emitted. 
-    /// <cref>EnterDirectory</cref> and <cref>LeaveDirectory</cref> are emitted for
-    /// every directory that is scanned, even when recursive scanning is not enabled.
-    /// In that case, those events can be ignored.
+    /// For every audio file found, a <cref>FoundAudioFile</cref> event is emitted. For every table 
+    /// of contents file found, a <cref>FoundTableOfContentsFile</cref> event is emitted. 
+    /// <cref>EnterDirectory</cref> and <cref>LeaveDirectory</cref> are emitted for every directory 
+    /// that is scanned, even when recursive scanning is not enabled. In that case, those events 
+    /// can be ignored.
     /// </remarks>
     public void Scan()
     {
@@ -66,19 +62,17 @@ public class MusicMgmtFileFinder(InputConfig config)
     }
 
     /// <summary>
-    /// Scans the <code>uncompressedDir</code> for files that match the 
-    /// <cref>InputConfig.Extension</cref> or <cref>StandardFilename.TableOfContents</cref>.
-    /// This method ignores the configured input path and overrides it with the provided
-    /// parameter.
+    /// Scans the <code>uncompressedDir</code> for files that match the <cref>InputConfig.Extension</cref> 
+    /// or <cref>StandardFileName.TableOfContents</cref>. This method ignores the configured input 
+    /// path and overrides it with the provided parameter.
     /// </summary>
     /// <param name="uncompressedDir"></param>
     /// <remarks>
-    /// For every audio file found, a <cref>FoundAudioFile</cref> event is emitted. 
-    /// For every table of contents file found, a <cref>FoundTableOfContentsFile</cref> 
-    /// event is emitted. 
-    /// <cref>EnterDirectory</cref> and <cref>LeaveDirectory</cref> are emitted for
-    /// every directory that is scanned, even when recursive scanning is not enabled.
-    /// In that case, those events can be ignored.
+    /// For every audio file found, a <cref>FoundAudioFile</cref> event is emitted. For every table 
+    /// of contents file found, a <cref>FoundTableOfContentsFile</cref> event is emitted. 
+    /// <cref>EnterDirectory</cref> and <cref>LeaveDirectory</cref> are emitted for every directory 
+    /// that is scanned, even when recursive scanning is not enabled. In that case, those events 
+    /// can be ignored.
     /// </remarks>
     public void Scan(string uncompressedDir)
     {
@@ -100,7 +94,7 @@ public class MusicMgmtFileFinder(InputConfig config)
                 FoundAudioFile?.Invoke(this, new AudioFileEvent { UncompressedFile = audioFile });
             } else if (MatchesTableOfContentsFile(fileInfo)) {
                 FoundTableOfContentsFile?.Invoke(this,
-                    new TableOfContentsFileEvent { Filename = fileInfo.FullName });
+                    new TableOfContentsFileEvent { FileName = fileInfo.FullName });
             }
         }
 
@@ -119,6 +113,6 @@ public class MusicMgmtFileFinder(InputConfig config)
 
     private static bool MatchesTableOfContentsFile(FileSystemInfo fileInfo)
     {
-        return fileInfo.Name == StandardFilename.TableOfContents;
+        return fileInfo.Name == StandardFileName.TableOfContents;
     }
 }

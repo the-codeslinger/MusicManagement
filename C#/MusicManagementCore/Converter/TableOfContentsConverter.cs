@@ -12,17 +12,17 @@ using MusicManagementCore.Util;
 namespace MusicManagementCore.Converter;
 
 /// <summary>
-/// Converter to turn version 1 of the table of contents file format to version 2.
+/// Converter to turn version 1 and 2 of the table of contents file format to version 3.
 /// </summary>
 /// <param name="config">The converter configuration.</param>
 public class TableOfContentsConverter(MusicManagementConfig config)
 {
     /// <summary>
-    /// Converts version 1 of the table of contents file format to version 2.
+    /// Converts version 1 of the table of contents file format to version 3.
     /// </summary>
     /// <param name="tocV1">The table of contents version 1 to convert.</param>
     /// <param name="directory">The source directory of the V1 table of contents file.</param>
-    /// <returns>The same table of contents converted to version 2.</returns>
+    /// <returns>The same table of contents converted to version 3.</returns>
     public TableOfContentsV3 Convert(TableOfContentsV1 tocV1, string directory)
     {
         var tracks = tocV1.TrackList.ConvertAll(trackV1 => {
@@ -42,6 +42,12 @@ public class TableOfContentsConverter(MusicManagementConfig config)
         return CreateToC(tracks, directory);
     }
 
+    /// <summary>
+    /// Converts version 2 of the table of contents file format to version 3.
+    /// </summary>
+    /// <param name="tocV1">The table of contents version 2 to convert.</param>
+    /// <param name="directory">The source directory of the V2 table of contents file.</param>
+    /// <returns>The same table of contents converted to version 3.</returns>
     public TableOfContentsV3 Convert(TableOfContentsV2 tocV2, string directory)
     {
         var tracks = tocV2.TrackList.ConvertAll(trackV2 => {
@@ -70,9 +76,9 @@ public class TableOfContentsConverter(MusicManagementConfig config)
             MetaData = converter.ToMetaData(metaData),
 
             Files = new FilesV3 {
-                Original = converter.ToOriginalFilename(metaData),
-                Uncompressed = converter.ToUncompressedFilename(metaData),
-                Compressed = converter.ToCompressedFilename(metaData, false)
+                Original = converter.ToOriginalFileName(metaData),
+                Uncompressed = converter.ToUncompressedFileName(metaData),
+                Compressed = converter.ToCompressedFileName(metaData, false)
             }
         };
     }

@@ -17,7 +17,7 @@ public static class MetaTagName
 }
 
 /// <summary>
-/// Defines the names of properties that are used in JSON objects.
+/// Defines the names of properties that are used in a table of contents JSON file.
 /// </summary>
 public static class JsonPropertyName
 {
@@ -42,15 +42,15 @@ public static class JsonPropertyName
     public const string FileUncompressed = "uncompressed";
     public const string FileCompressed = "compressed";
 
-    public const string Filename = "filename";
-    public const string FilenameLong = "long";
-    public const string FilenameShort = "short";
+    public const string FileName = "filename";
+    public const string FileNameLong = "long";
+    public const string FileNameShort = "short";
 }
 
 /// <summary>
-/// Standard filenames used by the music management tools.
+/// Standard file names used by the music management tools.
 /// </summary>
-public static class StandardFilename
+public static class StandardFileName
 {
     public const string TableOfContents = "ToC.json";
     public const string CoverArt = "Cover.jpg";

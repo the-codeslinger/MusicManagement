@@ -1,9 +1,8 @@
-﻿// ReSharper disable ClassNeverInstantiated.Global
-namespace MusicManagementCore.Domain.Config;
+﻿namespace MusicManagementCore.Domain.Config;
 
 /// <summary>
-/// Contains information which path to scan, if a recursive scan should be perfomed,
-/// and which file extension to look for.
+/// Contains information which path to scan, if a recursive scan should be perfomed, and which file 
+/// extension to look for.
 /// 
 /// <code>
 /// {
@@ -23,14 +22,14 @@ public class InputConfig
     public string Path { get; set; }
 
     /// <summary>
-    /// <c>true</c> to perform a recursive scan or <c>false</c> to only scan
-    /// the files located in <cref>Path</cref>.
+    /// <c>true</c> to perform a recursive scan or <c>false</c> to only scan the files located in
+    /// <cref>Path</cref>.
     /// </summary>
     public bool Recurse { get; set; }
 
     /// <summary>
-    /// Defines the file extension of the files that shall be scanned. The value
-    /// only contains the extension without the ".".
+    /// Defines the file extension of the files that shall be scanned. The value only contains the 
+    /// extension without the ".".
     /// </summary>
     public string Extension { get; set; }
 }

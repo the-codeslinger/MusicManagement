@@ -8,9 +8,9 @@ namespace MusicManagementCore.Domain.ToC.V1;
 /// <summary>
 /// Provides convenient accessors for an artist's album table of contents JSON file.
 /// 
-/// The <c>ToC.json</c> file has the following format. This format was used in the Python 
-/// scripts and is retained for backward compatibility with existing archives.
-/// New ToC files are written as <cref>TableOfContentsV2</cref>.
+/// The <c>ToC.json</c> file has the following format. This format was used in the Python scripts 
+/// and is retained for backward compatibility with existing archives. New ToC files are written as 
+/// <cref>TableOfContentsV3</cref>.
 /// 
 /// <code>
 /// {
@@ -32,8 +32,7 @@ namespace MusicManagementCore.Domain.ToC.V1;
 public class TableOfContentsV1
 {
     /// <summary>
-    /// The name of the "album"s artist. For example, this can be a single person 
-    /// or a band.
+    /// The name of the "album"s artist. For example, this can be a single person or a band.
     /// </summary>
     [JsonPropertyName(JsonPropertyName.Artist)]
     public string Artist { get; set; }

@@ -8,8 +8,8 @@ namespace MusicManagementCore.Domain.ToC.V2;
 /// <summary>
 /// Provides convenient accessors for a compilation table of contents JSON file.
 /// 
-/// The <c>ToC.json</c> file has the following format. Lowercase naming is used for
-/// consistency with existing album ToC JSON files.
+/// The <c>ToC.json</c> file has the following format. Lowercase naming is used for consistency 
+/// with existing album ToC JSON files.
 /// 
 /// <code>
 /// {
