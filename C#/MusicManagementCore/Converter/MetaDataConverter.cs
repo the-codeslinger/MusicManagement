@@ -82,7 +82,7 @@ public class MetaDataConverter(MusicManagementConfig config)
     /// extension.</returns>
     public string ToUncompressedFileName(MetaDataV3 metaData)
     {
-        return $"{metaData.TrackNumber} - {metaData.Title}.{config.InputConfig.Extension}";
+        return $"{metaData.TrackNumber} - {FileSystemUtil.RemoveInvalidFileNameChars(metaData.Title)}.{config.InputConfig.Extension}";
     }
 
     /// <summary>
